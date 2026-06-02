@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, Check, ShieldCheck } from "lucide-react";
+import { SiteShell } from "@/components/layout/SiteShell";
 
 const plans = [
   {
@@ -26,14 +27,14 @@ const plans = [
     subtitle: "For mission-critical enterprise environments",
     features: ["Private Deployment", "Custom AI Models", "Dedicated Support"],
     cta: "Contact Sales",
-    href: "/#contact",
+    href: "/contact",
     highlighted: false,
   },
 ];
 
 export default function PricingPage() {
   return (
-    <main className="min-h-screen bg-navy-950 text-foreground">
+    <SiteShell>
       <section className="relative overflow-hidden border-b border-white/10 py-20">
         <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)] [background-size:64px_64px]" />
         <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
@@ -109,6 +110,6 @@ export default function PricingPage() {
           ))}
         </div>
       </section>
-    </main>
+    </SiteShell>
   );
 }
