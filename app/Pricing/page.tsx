@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { SiteShell } from "@/components/layout/SiteShell";
 
 export default function PricingPage() {
@@ -7,9 +8,10 @@ export default function PricingPage() {
       <div className="mx-auto max-w-6xl px-6 py-16 lg:px-8">
         <Link
           href="/"
-          className="text-sm text-silver-300 transition-colors hover:text-white"
+          className="inline-flex items-center gap-2 text-sm text-silver-300 transition-colors hover:text-white"
         >
-          ← Back to Home
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
         </Link>
 
         <h1 className="mt-8 text-4xl font-bold text-white">Pricing</h1>
