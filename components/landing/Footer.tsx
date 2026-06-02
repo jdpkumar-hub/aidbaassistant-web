@@ -1,6 +1,6 @@
 const productLinks = [
   { href: "#features", label: "Features" },
-  { href: "#demo", label: "Demo Report" },
+  { href: "/demo", label: "Demo Report" },
   { href: "#pricing", label: "Pricing" },
   { href: "#contact", label: "Start Analysis" },
 ];

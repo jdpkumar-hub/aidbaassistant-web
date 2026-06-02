@@ -41,7 +41,7 @@ export function Hero() {
             <ArrowRight className="h-4 w-4" />
           </a>
           <a
-            href="#features"
+            href="/demo"
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-silver-400/25 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur transition-all hover:border-silver-400/40 hover:bg-white/10"
           >
             <Play className="h-4 w-4 fill-current" />
