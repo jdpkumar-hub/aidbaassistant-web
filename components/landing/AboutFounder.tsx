@@ -27,24 +27,37 @@ export function AboutFounder() {
               About the Founder
             </p>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Built by practitioners who live in AWRs
+              Leadership grounded in Oracle database operations
             </h2>
             <div className="mt-6 space-y-4 leading-relaxed text-silver-400">
               <p>
-                AI DBA Assistant was founded by a senior Oracle DBA with over
-                fifteen years of experience tuning mission-critical databases
-                for finance, healthcare, and government enterprises.
+                AI DBA Assistant is led by an Oracle DBA with deep experience
+                operating and tuning enterprise database environments across
+                high-availability industries.
               </p>
               <p>
-                After spending thousands of hours parsing AWR reports manually,
-                the mission became clear: give every DBA and consultant the
-                same depth of analysis—faster, consistently, and explainable
-                enough to present to leadership.
+                The founder has spent years driving performance analysis and
+                troubleshooting complex Oracle workloads, with a focus on
+                reducing risk and restoring predictable system behavior.
               </p>
               <p>
-                Today, the platform combines Oracle domain expertise with modern
-                AI to help teams move from reactive firefighting to proactive
-                performance management.
+                This platform reflects that operational discipline: practical
+                diagnostics, clear prioritization, and enterprise-ready guidance
+                for teams responsible for business-critical databases.
+              </p>
+            </div>
+            <div className="mt-6 grid gap-2 text-sm text-silver-300 sm:grid-cols-2">
+              <p className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                Oracle DBA
+              </p>
+              <p className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                Performance Analysis
+              </p>
+              <p className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                Troubleshooting
+              </p>
+              <p className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                Enterprise Databases
               </p>
             </div>
             <div className="mt-8 flex gap-4">
