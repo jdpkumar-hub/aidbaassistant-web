@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowRight, Download, FileText } from "lucide-react";
 
 const findings = [
@@ -25,20 +26,20 @@ export function DemoReport() {
               plans.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <a
-                href="#contact"
+              <Link
+                href="/contact"
                 className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent-hover"
               >
                 Request Full Demo
                 <ArrowRight className="h-4 w-4" />
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                href="/demo"
                 className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
               >
                 <Download className="h-4 w-4" />
                 Download Sample PDF
-              </a>
+              </Link>
             </div>
           </div>
 

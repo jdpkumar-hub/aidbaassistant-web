@@ -494,7 +494,7 @@ export default function AnalyzePage() {
                 Need private deployment or unlimited team access?
               </p>
               <Link
-                href="/Pricing"
+                href="/pricing"
                 className="mt-3 inline-block text-sm font-medium text-white underline-offset-2 hover:underline"
               >
                 View pricing →

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Check } from "lucide-react";
 
 const tiers = [
@@ -14,7 +15,7 @@ const tiers = [
       "Email support",
     ],
     cta: "Start Free",
-    ctaHref: "#contact",
+    ctaHref: "/analyze",
   },
   {
     name: "Professional",
@@ -30,7 +31,7 @@ const tiers = [
       "Priority email support",
     ],
     cta: "Start Professional",
-    ctaHref: "#contact",
+    ctaHref: "/analyze",
   },
   {
     name: "Enterprise",
@@ -46,13 +47,13 @@ const tiers = [
       "Volume licensing",
     ],
     cta: "Contact Sales",
-    ctaHref: "#contact",
+    ctaHref: "/contact",
   },
 ];
 
 export function Pricing() {
   return (
-    <section id="pricing" className="relative border-t border-white/10 py-24 lg:py-32">
+    <section className="relative border-t border-white/10 py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-wider text-accent">
@@ -107,7 +108,7 @@ export function Pricing() {
                 ))}
               </ul>
 
-              <a
+              <Link
                 href={tier.ctaHref}
                 className={`mt-8 block rounded-lg py-3 text-center text-sm font-semibold transition-colors ${
                   tier.highlighted
@@ -116,7 +117,7 @@ export function Pricing() {
                 }`}
               >
                 {tier.cta}
-              </a>
+              </Link>
             </article>
           ))}
         </div>

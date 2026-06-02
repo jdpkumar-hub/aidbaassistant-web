@@ -1,14 +1,16 @@
+import Link from "next/link";
+
 const productLinks = [
-  { href: "#features", label: "Features" },
+  { href: "/#features", label: "Features" },
   { href: "/demo", label: "Demo Report" },
-  { href: "#pricing", label: "Pricing" },
-  { href: "#contact", label: "Start Analysis" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/analyze", label: "Start Analysis" },
 ];
 
 const companyLinks = [
-  { href: "#about", label: "About" },
-  { href: "#testimonials", label: "Testimonials" },
-  { href: "#contact", label: "Contact" },
+  { href: "/about", label: "About" },
+  { href: "/#testimonials", label: "Testimonials" },
+  { href: "/contact", label: "Contact" },
 ];
 
 const legalLinks = [
@@ -22,12 +24,12 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
-            <a href="#home" className="flex items-center gap-2.5 font-semibold text-white">
+            <Link href="/" className="flex items-center gap-2.5 font-semibold text-white">
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-xs font-bold">
                 AI
               </span>
               AI DBA Assistant
-            </a>
+            </Link>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-silver-400">
               Enterprise Oracle Performance Intelligence. AI-powered diagnostics
               for Oracle DBAs, consultants, and IT teams.
@@ -39,12 +41,12 @@ export function Footer() {
             <ul className="mt-4 space-y-3">
               {productLinks.map((link) => (
                 <li key={link.label}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-sm text-silver-400 transition-colors hover:text-white"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -55,12 +57,12 @@ export function Footer() {
             <ul className="mt-4 space-y-3">
               {companyLinks.map((link) => (
                 <li key={link.label}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-sm text-silver-400 transition-colors hover:text-white"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -71,12 +73,12 @@ export function Footer() {
             <ul className="mt-4 space-y-3">
               {legalLinks.map((link) => (
                 <li key={link.label}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-sm text-silver-400 transition-colors hover:text-white"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

@@ -3,7 +3,7 @@
 import { Send } from "lucide-react";
 import { FormEvent, useState } from "react";
 
-export function Contact() {
+export function Contact({ standalone = false }: { standalone?: boolean }) {
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -12,7 +12,11 @@ export function Contact() {
   }
 
   return (
-    <section id="contact" className="relative border-t border-white/10 py-24 lg:py-32">
+    <section
+      className={`relative py-24 lg:py-32 ${
+        standalone ? "" : "border-t border-white/10"
+      }`}
+    >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="grid gap-16 lg:grid-cols-2 lg:gap-24">
           <div>

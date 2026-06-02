@@ -1,8 +1,12 @@
 import { Link2, Mail } from "lucide-react";
 
-export function AboutFounder() {
+export function AboutFounder({ standalone = false }: { standalone?: boolean }) {
   return (
-    <section id="about" className="relative border-t border-white/10 bg-navy-900/30 py-24 lg:py-32">
+    <section
+      className={`relative bg-navy-900/30 py-24 lg:py-32 ${
+        standalone ? "" : "border-t border-white/10"
+      }`}
+    >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div className="relative mx-auto w-full max-w-md lg:mx-0">
