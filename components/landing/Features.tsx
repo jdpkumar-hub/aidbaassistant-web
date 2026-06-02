@@ -3,13 +3,13 @@ import { Activity, Database, Gauge } from "lucide-react";
 const features = [
   {
     icon: Activity,
-    title: "AWR Analysis",
+    title: "Oracle AWR Analysis",
     description:
       "Upload AWR snapshots and get instant summaries of wait events, top SQL, and system bottlenecks—without hours of manual review.",
   },
   {
     icon: Database,
-    title: "SQL Tuning",
+    title: "SQL Tuning Assistant",
     description:
       "AI-ranked tuning recommendations with execution plan context, helping you prioritize fixes that deliver the biggest performance gains.",
   },
