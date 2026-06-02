@@ -5,19 +5,19 @@ const features = [
     icon: Activity,
     title: "Oracle AWR Analysis",
     description:
-      "Upload AWR snapshots and get instant summaries of wait events, top SQL, and system bottlenecks—without hours of manual review.",
+      "Upload Oracle AWR reports and receive AI-driven analysis of waits, CPU utilization, memory usage, SQL performance, and bottlenecks.",
   },
   {
     icon: Database,
     title: "SQL Tuning Assistant",
     description:
-      "AI-ranked tuning recommendations with execution plan context, helping you prioritize fixes that deliver the biggest performance gains.",
+      "Analyze expensive SQL statements and receive optimization recommendations.",
   },
   {
     icon: Gauge,
     title: "Database Health Check",
     description:
-      "Holistic view of capacity, memory, I/O, and session risk—packaged for DBAs and executive stakeholders in one clear report.",
+      "Identify performance risks, capacity concerns, and configuration issues before they impact production.",
   },
 ];
 
