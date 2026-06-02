@@ -100,7 +100,7 @@ export default function DemoPage() {
             Upload your AWR and get AI-driven diagnostics in minutes.
           </p>
           <Link
-            href="/#contact"
+            href="/analyze"
             className="mt-6 inline-flex rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent-hover"
           >
             Start Free Analysis

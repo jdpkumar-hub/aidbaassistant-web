@@ -37,7 +37,7 @@ export function Navbar() {
             </a>
           ))}
           <a
-            href="#contact"
+            href="/analyze"
             className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white shadow-lg shadow-accent/25 transition-colors hover:bg-accent-hover"
           >
             Start Analysis
@@ -69,7 +69,7 @@ export function Navbar() {
               </a>
             ))}
             <a
-              href="#contact"
+              href="/analyze"
               className="mt-2 rounded-lg bg-accent px-4 py-2.5 text-center text-sm font-medium text-white"
               onClick={() => setOpen(false)}
             >
