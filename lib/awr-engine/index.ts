@@ -8,10 +8,10 @@ import { evaluateIo, IO_RULES_COUNT } from "./io-rules";
 import { evaluateMemory, MEMORY_RULES_COUNT } from "./memory-rules";
 import { evaluateSql, SQL_RULES_COUNT } from "./sql-rules";
 import { calculateHealthScore } from "./health-score-engine";
+import { classifyBottleneck } from "./bottleneck-engine";
 import {
   aggregateRecommendations,
   buildKpiCards,
-  classifyBottleneck,
   resultToFinding,
 } from "./scoring";
 import type { AwrAnalysisResult, AwrMetrics, RuleResult } from "./types";
@@ -24,6 +24,11 @@ export {
   type HealthScoreResult,
   type DimensionScore,
 } from "./health-score-engine";
+export {
+  classifyBottleneck,
+  BOTTLENECK_TYPES,
+  type BottleneckClassificationResult,
+} from "./bottleneck-engine";
 
 const RULES_EVALUATED =
   CPU_RULES_COUNT +
@@ -44,7 +49,8 @@ function runAllRules(metrics: AwrMetrics): RuleResult[] {
 
 export function runAwrRules(metrics: AwrMetrics): AwrAnalysisResult {
   const ruleResults = runAllRules(metrics);
-  const bottleneck = classifyBottleneck(metrics, ruleResults);
+  const bottleneckResult = classifyBottleneck(metrics);
+  const bottleneck = bottleneckResult.classification;
   const healthResult = calculateHealthScore(metrics);
   const healthScore = healthResult.healthScore;
   const riskLevel = healthResult.riskLevel;

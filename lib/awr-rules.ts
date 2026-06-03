@@ -6,6 +6,8 @@ export {
   runAwrRules,
   demoAwrMetrics,
   calculateHealthScore,
+  classifyBottleneck,
+  BOTTLENECK_TYPES,
   severityStyles,
   type AwrMetrics,
   type AwrAnalysisResult,
@@ -17,4 +19,5 @@ export {
   type BottleneckClass,
   type HealthScoreResult,
   type DimensionScore,
+  type BottleneckClassificationResult,
 } from "./awr-engine";

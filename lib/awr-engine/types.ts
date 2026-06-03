@@ -1,12 +1,12 @@
 export type Severity = "green" | "amber" | "red";
 export type RiskLevel = "Low" | "Medium" | "High";
 export type BottleneckClass =
-  | "CPU Bound"
-  | "I/O Bound"
-  | "Lock / Contention"
-  | "SQL Workload"
-  | "Memory Pressure"
-  | "Balanced";
+  | "CPU Bottleneck"
+  | "Random IO Bottleneck"
+  | "Sequential Scan Bottleneck"
+  | "Commit Bottleneck"
+  | "Concurrency Bottleneck"
+  | "Memory Bottleneck";
 
 export type AwrMetrics = {
   databaseName: string;

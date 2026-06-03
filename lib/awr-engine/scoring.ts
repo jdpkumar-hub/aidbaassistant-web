@@ -11,9 +11,6 @@ import type {
 
 const HEALTH_GREEN = 80;
 const HEALTH_AMBER = 60;
-const CPU_AMBER = 70;
-const TOP_SQL_AMBER = 15;
-const BUFFER_BUSY_AMBER = 8;
 
 export function severityCpu(pct: number): Severity {
   if (pct >= 85) return "red";
@@ -49,39 +46,6 @@ function severityRisk(risk: RiskLevel): Severity {
   if (risk === "Low") return "green";
   if (risk === "Medium") return "amber";
   return "red";
-}
-
-export function classifyBottleneck(
-  metrics: AwrMetrics,
-  results: RuleResult[],
-): BottleneckClass {
-  const categories = new Set(
-    results.filter((r) => r.severity !== "green").map((r) => r.category),
-  );
-  const wait = metrics.topWaitEvent.toLowerCase();
-
-  if (categories.has("Top SQL") || metrics.topSqlDbTimePct >= TOP_SQL_AMBER) {
-    return "SQL Workload";
-  }
-  if (
-    metrics.cpuUsagePct >= CPU_AMBER &&
-    (categories.has("CPU") || wait.includes("cpu"))
-  ) {
-    return "CPU Bound";
-  }
-  if (categories.has("Contention") || metrics.bufferBusyWaitsPct >= BUFFER_BUSY_AMBER) {
-    return "Lock / Contention";
-  }
-  if (
-    categories.has("I/O") ||
-    ["db file sequential", "db file scattered", "direct path", "log file"].some(
-      (k) => wait.includes(k),
-    )
-  ) {
-    return "I/O Bound";
-  }
-  if (categories.has("Memory")) return "Memory Pressure";
-  return "Balanced";
 }
 
 export function computeHealthScore(
@@ -146,8 +110,8 @@ export function buildKpiCards(
     {
       label: "Bottleneck Classification",
       value: bottleneck,
-      severity: bottleneck === "Balanced" ? "green" : "amber",
-      detail: "Rule-based workload classification",
+      severity: "amber",
+      detail: "Bottleneck Classification Engine",
     },
   ];
 }
