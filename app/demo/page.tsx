@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { ExecutiveDashboard } from "@/components/awr/ExecutiveDashboard";
 import { SiteShell } from "@/components/layout/SiteShell";
+import { ANALYSIS_APP_URL } from "@/lib/analysis-app-url";
 import { demoAwrMetrics, runAwrRules } from "@/lib/awr-rules";
 
 const awrAnalysis = runAwrRules(demoAwrMetrics());
@@ -103,12 +104,12 @@ export default function DemoPage() {
                 Snap ID 4521 · 26-Apr-2026 08:00 – 09:00 · Report ID AWR-DEMO-0426
               </p>
             </div>
-            <Link
-              href="/analyze"
+            <a
+              href={ANALYSIS_APP_URL}
               className="rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-hover"
             >
               Start Free Analysis
-            </Link>
+            </a>
           </div>
         </div>
       </div>
@@ -297,12 +298,12 @@ export default function DemoPage() {
             Upload an Oracle AWR HTML export and receive a full performance assessment in minutes.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-4">
-            <Link
-              href="/analyze"
+            <a
+              href={ANALYSIS_APP_URL}
               className="rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover"
             >
               Start Free Analysis
-            </Link>
+            </a>
             <Link
               href="/pricing"
               className="rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"

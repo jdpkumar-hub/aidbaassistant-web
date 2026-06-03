@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { SiteShell } from "@/components/layout/SiteShell";
+import { ANALYSIS_APP_URL } from "@/lib/analysis-app-url";
 
 export default function PricingPage() {
   return (
@@ -26,12 +27,12 @@ export default function PricingPage() {
             <ul className="mt-6 space-y-2 text-sm text-silver-300">
               <li>3 Reports / Month</li>
             </ul>
-            <Link
-              href="/analyze"
+            <a
+              href={ANALYSIS_APP_URL}
               className="mt-8 block rounded-lg border border-white/20 bg-white/5 py-3 text-center text-sm font-semibold text-white hover:bg-white/10"
             >
               Get Started
-            </Link>
+            </a>
           </div>
 
           <div className="rounded-2xl border border-accent bg-navy-800/80 p-8 shadow-lg shadow-accent/10">
@@ -42,12 +43,12 @@ export default function PricingPage() {
               <li>PDF Exports</li>
               <li>SQL Analysis</li>
             </ul>
-            <Link
-              href="/analyze"
+            <a
+              href={ANALYSIS_APP_URL}
               className="mt-8 block rounded-lg bg-accent py-3 text-center text-sm font-semibold text-white hover:bg-accent-hover"
             >
               Start Professional
-            </Link>
+            </a>
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-navy-900/60 p-8">

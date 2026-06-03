@@ -1,4 +1,5 @@
 import { ArrowRight, Play } from "lucide-react";
+import { ANALYSIS_APP_URL } from "@/lib/analysis-app-url";
 
 export function Hero() {
   return (
@@ -34,7 +35,7 @@ export function Hero() {
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
           <a
-            href="/analyze"
+            href={ANALYSIS_APP_URL}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-accent/30 transition-all hover:bg-accent-hover hover:shadow-accent/40"
           >
             Start Free Analysis

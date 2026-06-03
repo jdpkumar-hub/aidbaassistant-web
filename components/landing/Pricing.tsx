@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Check } from "lucide-react";
+import { ANALYSIS_APP_URL } from "@/lib/analysis-app-url";
 
 const tiers = [
   {
@@ -15,7 +16,7 @@ const tiers = [
       "Email support",
     ],
     cta: "Start Free",
-    ctaHref: "/analyze",
+    ctaHref: ANALYSIS_APP_URL,
   },
   {
     name: "Professional",
@@ -31,7 +32,7 @@ const tiers = [
       "Priority email support",
     ],
     cta: "Start Professional",
-    ctaHref: "/analyze",
+    ctaHref: ANALYSIS_APP_URL,
   },
   {
     name: "Enterprise",
@@ -108,16 +109,29 @@ export function Pricing() {
                 ))}
               </ul>
 
-              <Link
-                href={tier.ctaHref}
-                className={`mt-8 block rounded-lg py-3 text-center text-sm font-semibold transition-colors ${
-                  tier.highlighted
-                    ? "bg-accent text-white hover:bg-accent-hover"
-                    : "border border-white/20 bg-white/5 text-white hover:bg-white/10"
-                }`}
-              >
-                {tier.cta}
-              </Link>
+              {tier.ctaHref.startsWith("http") ? (
+                <a
+                  href={tier.ctaHref}
+                  className={`mt-8 block rounded-lg py-3 text-center text-sm font-semibold transition-colors ${
+                    tier.highlighted
+                      ? "bg-accent text-white hover:bg-accent-hover"
+                      : "border border-white/20 bg-white/5 text-white hover:bg-white/10"
+                  }`}
+                >
+                  {tier.cta}
+                </a>
+              ) : (
+                <Link
+                  href={tier.ctaHref}
+                  className={`mt-8 block rounded-lg py-3 text-center text-sm font-semibold transition-colors ${
+                    tier.highlighted
+                      ? "bg-accent text-white hover:bg-accent-hover"
+                      : "border border-white/20 bg-white/5 text-white hover:bg-white/10"
+                  }`}
+                >
+                  {tier.cta}
+                </Link>
+              )}
             </article>
           ))}
         </div>

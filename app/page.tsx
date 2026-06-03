@@ -6,6 +6,7 @@ import { HowItWorks } from "@/components/landing/HowItWorks";
 import { Navbar } from "@/components/landing/Navbar";
 import { Testimonials } from "@/components/landing/Testimonials";
 import Link from "next/link";
+import { ANALYSIS_APP_URL } from "@/lib/analysis-app-url";
 
 export default function Home() {
   return (
@@ -27,12 +28,12 @@ export default function Home() {
               enterprise teams.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Link
-                href="/analyze"
+              <a
+                href={ANALYSIS_APP_URL}
                 className="rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover"
               >
                 Start Free Analysis
-              </Link>
+              </a>
               <Link
                 href="/pricing"
                 className="rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"

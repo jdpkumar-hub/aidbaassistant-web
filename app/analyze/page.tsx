@@ -160,6 +160,11 @@ export default function AnalyzePage() {
 
   return (
     <main className="min-h-screen bg-navy-950 text-foreground">
+      <div className="border-b border-white/10 bg-navy-900/40 py-2 text-center">
+        <p className="text-xs text-silver-400">
+          Powered by AI DBA Assistant Analysis Engine
+        </p>
+      </div>
       <section className="relative overflow-hidden border-b border-white/10 py-16 lg:py-20">
         <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)] [background-size:64px_64px]" />
         <div className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-accent/10 blur-[100px]" />
