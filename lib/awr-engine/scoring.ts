@@ -1,3 +1,4 @@
+import { calculateHealthScore } from "./health-score-engine";
 import type {
   AwrMetrics,
   BottleneckClass,
@@ -85,28 +86,18 @@ export function classifyBottleneck(
 
 export function computeHealthScore(
   metrics: AwrMetrics,
-  results: RuleResult[],
+  _results?: RuleResult[],
 ): number {
-  let penalty = 0;
-  penalty += Math.max(0, (metrics.cpuUsagePct - 60) * 0.4);
-  penalty += Math.max(0, (metrics.topWaitEventPct - 30) * 0.35);
-  penalty += Math.max(0, (metrics.topSqlDbTimePct - 20) * 0.4);
-  penalty += Math.max(0, (metrics.bufferBusyWaitsPct - 10) * 0.3);
-  penalty += Math.max(0, (90 - metrics.bufferCacheHitRatioPct) * 0.5);
-
-  for (const r of results) {
-    if (r.severity === "red") penalty += 3;
-    else if (r.severity === "amber") penalty += 1;
-  }
-
-  return Math.max(0, Math.min(100, Math.floor(100 - penalty)));
+  return calculateHealthScore(metrics).healthScore;
 }
 
-export function riskFromHealth(score: number, results: RuleResult[]): RiskLevel {
-  const redCount = results.filter((r) => r.severity === "red").length;
-  if (score < HEALTH_AMBER || redCount >= 3) return "High";
-  if (score < HEALTH_GREEN || redCount >= 1) return "Medium";
-  return "Low";
+export function riskFromHealth(
+  _score: number,
+  _results?: RuleResult[],
+  metrics?: AwrMetrics,
+): RiskLevel {
+  if (metrics) return calculateHealthScore(metrics).riskLevel;
+  return "Medium";
 }
 
 export function buildKpiCards(
@@ -120,7 +111,7 @@ export function buildKpiCards(
       label: "Database Health Score",
       value: `${health} / 100`,
       severity: severityHealth(health),
-      detail: "Composite score from Oracle rule engine",
+      detail: "AWR Health Score Engine (6 dimensions)",
     },
     {
       label: "Risk Level",

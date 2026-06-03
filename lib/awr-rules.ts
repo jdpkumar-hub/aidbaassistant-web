@@ -5,6 +5,7 @@
 export {
   runAwrRules,
   demoAwrMetrics,
+  calculateHealthScore,
   severityStyles,
   type AwrMetrics,
   type AwrAnalysisResult,
@@ -14,4 +15,6 @@ export {
   type Severity,
   type RiskLevel,
   type BottleneckClass,
+  type HealthScoreResult,
+  type DimensionScore,
 } from "./awr-engine";

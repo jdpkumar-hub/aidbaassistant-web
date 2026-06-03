@@ -7,19 +7,23 @@ import { evaluateCpu, CPU_RULES_COUNT } from "./cpu-rules";
 import { evaluateIo, IO_RULES_COUNT } from "./io-rules";
 import { evaluateMemory, MEMORY_RULES_COUNT } from "./memory-rules";
 import { evaluateSql, SQL_RULES_COUNT } from "./sql-rules";
+import { calculateHealthScore } from "./health-score-engine";
 import {
   aggregateRecommendations,
   buildKpiCards,
   classifyBottleneck,
-  computeHealthScore,
   resultToFinding,
-  riskFromHealth,
 } from "./scoring";
 import type { AwrAnalysisResult, AwrMetrics, RuleResult } from "./types";
 import { evaluateWaits, WAITS_RULES_COUNT } from "./waits-rules";
 
 export * from "./types";
 export { severityStyles } from "./types";
+export {
+  calculateHealthScore,
+  type HealthScoreResult,
+  type DimensionScore,
+} from "./health-score-engine";
 
 const RULES_EVALUATED =
   CPU_RULES_COUNT +
@@ -41,8 +45,9 @@ function runAllRules(metrics: AwrMetrics): RuleResult[] {
 export function runAwrRules(metrics: AwrMetrics): AwrAnalysisResult {
   const ruleResults = runAllRules(metrics);
   const bottleneck = classifyBottleneck(metrics, ruleResults);
-  const healthScore = computeHealthScore(metrics, ruleResults);
-  const riskLevel = riskFromHealth(healthScore, ruleResults);
+  const healthResult = calculateHealthScore(metrics);
+  const healthScore = healthResult.healthScore;
+  const riskLevel = healthResult.riskLevel;
   const kpiCards = buildKpiCards(metrics, healthScore, riskLevel, bottleneck);
   const findings = ruleResults.map(resultToFinding);
   const recommendations = aggregateRecommendations(ruleResults);
