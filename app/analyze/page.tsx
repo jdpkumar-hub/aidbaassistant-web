@@ -2,11 +2,8 @@
 
 import Link from "next/link";
 import {
-  AlertCircle,
   ArrowLeft,
   CheckCircle2,
-  Cpu,
-  Database,
   FileCheck2,
   FileText,
   HardDrive,
@@ -17,6 +14,12 @@ import {
   XCircle,
 } from "lucide-react";
 import { ChangeEvent, DragEvent, useCallback, useMemo, useRef, useState } from "react";
+import { ExecutiveDashboard } from "@/components/awr/ExecutiveDashboard";
+import {
+  demoAwrMetrics,
+  runAwrRules,
+  type AwrAnalysisResult,
+} from "@/lib/awr-rules";
 
 const MAX_FILE_BYTES = 50 * 1024 * 1024; // 50 MB
 
@@ -64,18 +67,6 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
-const demoSummary = {
-  database: "PROD_ORCL",
-  snapshot: "Snap ID 4521 · 60 min interval",
-  critical: 3,
-  advisory: 7,
-  waitEvent: "db file sequential read",
-  waitPct: "42.3%",
-  topSql: "8k2x9f",
-  cpuPct: "78%",
-  memoryPressure: "Moderate",
-};
-
 export default function AnalyzePage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -84,6 +75,7 @@ export default function AnalyzePage() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [ruleAnalysis, setRuleAnalysis] = useState<AwrAnalysisResult | null>(null);
 
   const canAnalyze = useMemo(
     () => file && phase === "ready",
@@ -142,6 +134,7 @@ export default function AnalyzePage() {
     setPhase("idle");
     setUploadProgress(0);
     setAnalysisProgress(0);
+    setRuleAnalysis(null);
     if (inputRef.current) inputRef.current.value = "";
   }
 
@@ -149,11 +142,14 @@ export default function AnalyzePage() {
     if (!file || phase !== "ready") return;
     setPhase("analyzing");
     setAnalysisProgress(0);
+    setRuleAnalysis(null);
 
     const timer = window.setInterval(() => {
       setAnalysisProgress((current) => {
         if (current >= 100) {
           window.clearInterval(timer);
+          // Oracle DBA rules run first; AI layer would follow in production
+          setRuleAnalysis(runAwrRules(demoAwrMetrics()));
           setPhase("complete");
           return 100;
         }
@@ -329,7 +325,7 @@ export default function AnalyzePage() {
                     />
                   </div>
                   <p className="mt-2 text-xs text-silver-400">
-                    Parsing wait events, SQL workload, and resource metrics…
+                    Applying Oracle DBA rules, then AI-assisted interpretation…
                   </p>
                 </div>
               )}
@@ -362,72 +358,33 @@ export default function AnalyzePage() {
               </div>
             </div>
 
-            {showPreview && (
+            {showPreview && ruleAnalysis && (
               <div className="rounded-2xl border border-white/10 bg-navy-900/70 p-6 shadow-xl shadow-black/20 lg:p-8">
                 <div className="flex items-center justify-between border-b border-white/10 pb-4">
                   <h2 className="text-lg font-semibold text-white">
-                    Report summary preview
+                    Analysis results
                   </h2>
                   <span className="rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-emerald-400">
-                    Generated
+                    DBA rules complete
                   </span>
                 </div>
-
-                <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-xl border border-white/10 bg-navy-800/80 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-silver-400">
-                      Database
-                    </p>
-                    <p className="mt-2 font-mono text-sm font-medium text-white">
-                      {demoSummary.database}
-                    </p>
-                    <p className="mt-1 text-xs text-silver-400">
-                      {demoSummary.snapshot}
-                    </p>
-                  </div>
-                  <div className="rounded-xl border border-white/10 bg-navy-800/80 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-silver-400">
-                      Findings
-                    </p>
-                    <p className="mt-2 text-sm text-white">
-                      <span className="font-semibold text-amber-400">
-                        {demoSummary.critical} critical
-                      </span>
-                      {" · "}
-                      <span className="text-silver-300">
-                        {demoSummary.advisory} advisory
-                      </span>
-                    </p>
-                  </div>
+                <div className="mt-6">
+                  <ExecutiveDashboard analysis={ruleAnalysis} />
                 </div>
-
-                <ul className="mt-6 space-y-3 font-mono text-sm">
-                  <li className="flex items-start gap-2 rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2.5 text-amber-200/90">
-                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
-                    Top wait: {demoSummary.waitEvent} ({demoSummary.waitPct})
-                  </li>
-                  <li className="flex items-start gap-2 rounded-lg border border-white/10 bg-navy-950/50 px-3 py-2.5 text-silver-300">
-                    <Cpu className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-                    CPU utilization peak: {demoSummary.cpuPct}
-                  </li>
-                  <li className="flex items-start gap-2 rounded-lg border border-white/10 bg-navy-950/50 px-3 py-2.5 text-silver-300">
-                    <Database className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-                    Top SQL bottleneck: SQL_ID {demoSummary.topSql}
-                  </li>
-                  <li className="flex items-start gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2.5 text-emerald-300/90">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-                    Memory pressure: {demoSummary.memoryPressure} — review PGA
-                    advisory
-                  </li>
-                </ul>
-
-                <div className="mt-6 flex flex-wrap gap-3">
+                <div className="mt-8 flex flex-wrap gap-3 border-t border-white/10 pt-6">
                   <Link
                     href="/demo"
                     className="rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
                   >
                     View full demo report
                   </Link>
+                  <a
+                    href="/reports/awr_performance_report.pdf"
+                    download
+                    className="rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
+                  >
+                    Download PDF
+                  </a>
                   <button
                     type="button"
                     onClick={clearFile}
@@ -447,8 +404,9 @@ export default function AnalyzePage() {
                 {[
                   { label: "Upload & validate", done: !!file && !validationError },
                   { label: "Ingest AWR HTML", done: uploadProgress === 100 },
+                  { label: "Oracle DBA rules", done: !!ruleAnalysis },
                   { label: "AI diagnostics", done: phase === "complete" },
-                  { label: "Summary preview", done: showPreview },
+                  { label: "Executive dashboard", done: showPreview && !!ruleAnalysis },
                 ].map((step, i) => (
                   <li key={step.label} className="flex items-center gap-3 text-sm">
                     <span

@@ -8,7 +8,11 @@ import {
   HardDrive,
   TrendingUp,
 } from "lucide-react";
+import { ExecutiveDashboard } from "@/components/awr/ExecutiveDashboard";
 import { SiteShell } from "@/components/layout/SiteShell";
+import { demoAwrMetrics, runAwrRules } from "@/lib/awr-rules";
+
+const awrAnalysis = runAwrRules(demoAwrMetrics());
 
 const criticalFindings = [
   "High CPU Utilization",
@@ -110,6 +114,10 @@ export default function DemoPage() {
       </div>
 
       <div className="mx-auto max-w-6xl space-y-8 px-6 py-10 lg:px-8">
+        <section className="rounded-2xl border border-white/10 bg-navy-900/60 p-6 lg:p-8">
+          <ExecutiveDashboard analysis={awrAnalysis} />
+        </section>
+
         <section className="grid gap-6 lg:grid-cols-[1fr_auto]">
           <div className="rounded-2xl border border-white/10 bg-navy-900/60 p-6 lg:p-8">
             <div className="flex flex-wrap items-center gap-6">
