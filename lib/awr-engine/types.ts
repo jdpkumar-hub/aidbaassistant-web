@@ -59,6 +59,10 @@ export type AwrAnalysisResult = {
   findings: RuleFinding[];
   ruleResults: RuleResult[];
   executiveSummary: string;
+  executiveSummaryMarkdown: string;
+  businessSummary: string;
+  technicalSummary: string;
+  topActions: string[];
   recommendations: string[];
   rulesEvaluated: number;
   rulesTriggered: number;

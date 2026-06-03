@@ -9,6 +9,7 @@ import { evaluateMemory, MEMORY_RULES_COUNT } from "./memory-rules";
 import { evaluateSql, SQL_RULES_COUNT } from "./sql-rules";
 import { calculateHealthScore } from "./health-score-engine";
 import { classifyBottleneck } from "./bottleneck-engine";
+import { generateExecutiveSummary } from "./executive-summary-generator";
 import {
   aggregateRecommendations,
   buildKpiCards,
@@ -29,6 +30,10 @@ export {
   BOTTLENECK_TYPES,
   type BottleneckClassificationResult,
 } from "./bottleneck-engine";
+export {
+  generateExecutiveSummary,
+  type ExecutiveSummaryResult,
+} from "./executive-summary-generator";
 
 const RULES_EVALUATED =
   CPU_RULES_COUNT +
@@ -57,15 +62,13 @@ export function runAwrRules(metrics: AwrMetrics): AwrAnalysisResult {
   const kpiCards = buildKpiCards(metrics, healthScore, riskLevel, bottleneck);
   const findings = ruleResults.map(resultToFinding);
   const recommendations = aggregateRecommendations(ruleResults);
-  const redCount = ruleResults.filter((r) => r.severity === "red").length;
-
-  const executiveSummary =
-    `${metrics.databaseName} (${metrics.instanceName}) — health score ${healthScore}/100, ` +
-    `${riskLevel} risk, workload ${bottleneck}. ` +
-    `Top wait: ${metrics.topWaitEvent} (${metrics.topWaitEventPct.toFixed(1)}% DB time). ` +
-    `Top SQL: ${metrics.topSqlId} (${metrics.topSqlDbTimePct.toFixed(1)}% DB time). ` +
-    `Rule engine: ${ruleResults.length} findings (${redCount} critical) across ` +
-    `CPU, I/O, waits, memory, and SQL modules. AI analysis follows DBA triage.`;
+  const summaryDoc = generateExecutiveSummary(
+    metrics,
+    healthResult,
+    bottleneckResult,
+    ruleResults,
+    findings,
+  );
 
   return {
     healthScore,
@@ -74,7 +77,11 @@ export function runAwrRules(metrics: AwrMetrics): AwrAnalysisResult {
     kpiCards,
     findings,
     ruleResults,
-    executiveSummary,
+    executiveSummary: summaryDoc.businessSummary,
+    executiveSummaryMarkdown: summaryDoc.markdown,
+    businessSummary: summaryDoc.businessSummary,
+    technicalSummary: summaryDoc.technicalSummary,
+    topActions: summaryDoc.topActions,
     recommendations,
     rulesEvaluated: RULES_EVALUATED,
     rulesTriggered: ruleResults.length,

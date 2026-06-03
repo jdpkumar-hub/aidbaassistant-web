@@ -12,6 +12,46 @@ function severityLabel(severity: string): string {
   return "Normal";
 }
 
+/** Minimal inline emphasis for generator output (**bold**). */
+function SummaryText({ text }: { text: string }) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return (
+    <p className="text-sm leading-relaxed text-silver-300">
+      {parts.map((part, i) => {
+        if (part.startsWith("**") && part.endsWith("**")) {
+          return (
+            <span key={i} className="font-semibold text-white">
+              {part.slice(2, -2)}
+            </span>
+          );
+        }
+        return <span key={i}>{part}</span>;
+      })}
+    </p>
+  );
+}
+
+function TechnicalBlock({ text }: { text: string }) {
+  const blocks = text.split("\n\n").filter(Boolean);
+  return (
+    <div className="space-y-3 text-sm leading-relaxed text-silver-300">
+      {blocks.map((block) => {
+        const lines = block.split("\n");
+        if (lines.every((l) => l.startsWith("- "))) {
+          return (
+            <ul key={block.slice(0, 40)} className="list-inside list-disc space-y-1">
+              {lines.map((line) => (
+                <li key={line}>{line.replace(/^- \*\*/, "").replace(/\*\*/g, "")}</li>
+              ))}
+            </ul>
+          );
+        }
+        return <SummaryText key={block.slice(0, 40)} text={block} />;
+      })}
+    </div>
+  );
+}
+
 export function ExecutiveDashboard({
   analysis,
   showFindings = true,
@@ -59,11 +99,54 @@ export function ExecutiveDashboard({
         })}
       </div>
 
-      <div className="rounded-xl border border-white/10 bg-navy-800/60 p-6">
+      <div className="space-y-4 rounded-xl border border-white/10 bg-navy-800/60 p-6">
         <h3 className="text-sm font-semibold text-white">Executive Summary</h3>
-        <p className="mt-3 text-sm leading-relaxed text-silver-300">
-          {analysis.executiveSummary}
-        </p>
+
+        <div>
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-accent">
+            Business Summary
+          </h4>
+          <div className="mt-2">
+            <SummaryText
+              text={analysis.businessSummary || analysis.executiveSummary}
+            />
+          </div>
+        </div>
+
+        <div className="border-t border-white/10 pt-4">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-accent">
+            Technical Summary
+          </h4>
+          <div className="mt-2">
+            <TechnicalBlock text={analysis.technicalSummary} />
+          </div>
+        </div>
+
+        {analysis.topActions.length > 0 && (
+          <div className="border-t border-white/10 pt-4">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-accent">
+              Top 5 Actions
+            </h4>
+            <ol className="mt-2 list-decimal space-y-2 pl-5 text-sm text-silver-300">
+              {analysis.topActions.map((action) => (
+                <li key={action} className="leading-relaxed">
+                  {action}
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+
+        {analysis.executiveSummaryMarkdown && (
+          <details className="border-t border-white/10 pt-4">
+            <summary className="cursor-pointer text-xs font-medium text-silver-400 hover:text-white">
+              View Markdown export
+            </summary>
+            <pre className="mt-3 max-h-80 overflow-auto rounded-lg border border-white/10 bg-navy-950/80 p-4 font-mono text-xs leading-relaxed text-silver-400 whitespace-pre-wrap">
+              {analysis.executiveSummaryMarkdown}
+            </pre>
+          </details>
+        )}
       </div>
 
       {showFindings && analysis.findings.length > 0 && (
