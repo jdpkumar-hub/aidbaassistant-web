@@ -143,13 +143,25 @@ export default function DemoPage() {
           </div>
 
           <div className="flex items-center gap-6 rounded-2xl border border-white/10 bg-navy-900/60 p-6">
-            <HealthGauge score={72} />
+            <HealthGauge score={awrAnalysis.healthScore} />
             <div>
               <p className="text-sm font-semibold uppercase tracking-wider text-silver-400">
                 Health Score
               </p>
-              <p className="mt-1 text-2xl font-bold text-amber-400">72 / 100</p>
-              <p className="mt-1 text-sm text-silver-400">Moderate risk — tuning recommended</p>
+              <p
+                className={`mt-1 text-2xl font-bold ${
+                  awrAnalysis.healthScore >= 80
+                    ? "text-emerald-400"
+                    : awrAnalysis.healthScore >= 60
+                      ? "text-amber-400"
+                      : "text-red-400"
+                }`}
+              >
+                {awrAnalysis.healthScore} / 100
+              </p>
+              <p className="mt-1 text-sm text-silver-400">
+                {awrAnalysis.riskLevel} risk — {awrAnalysis.bottleneckClassification}
+              </p>
             </div>
           </div>
         </section>

@@ -6,6 +6,12 @@ type ExecutiveDashboardProps = {
   showFindings?: boolean;
 };
 
+function severityLabel(severity: string): string {
+  if (severity === "red") return "Critical";
+  if (severity === "amber") return "Warning";
+  return "Normal";
+}
+
 export function ExecutiveDashboard({
   analysis,
   showFindings = true,
@@ -21,7 +27,8 @@ export function ExecutiveDashboard({
         </h2>
         <p className="mt-2 text-sm text-silver-400">
           Deterministic DBA thresholds applied before AI analysis ·{" "}
-          {analysis.rulesTriggered} of {analysis.rulesEvaluated} rules triggered
+          {analysis.rulesTriggered} of {analysis.rulesEvaluated} rules triggered ·
+          Health score {analysis.healthScore}/100
         </p>
       </div>
 
@@ -61,43 +68,67 @@ export function ExecutiveDashboard({
 
       {showFindings && analysis.findings.length > 0 && (
         <div>
-          <h3 className="mb-4 text-sm font-semibold text-white">Rule-Based Findings</h3>
-          <ul className="space-y-2">
-            {analysis.findings.map((f) => {
-              const s = severityStyles[f.severity];
-              return (
-                <li
-                  key={f.ruleId}
-                  className={`flex items-start gap-3 rounded-lg border px-4 py-3 text-sm ${s.border} ${s.bg}`}
-                >
-                  <span
-                    className={`shrink-0 font-mono text-xs font-bold ${s.text}`}
-                  >
-                    {f.ruleId}
-                  </span>
-                  <div>
-                    <p className="font-medium text-white">{f.category}</p>
-                    <p className="mt-0.5 text-silver-300">{f.message}</p>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          <h3 className="mb-4 text-sm font-semibold text-white">
+            Rule Engine Findings
+          </h3>
+          <div className="overflow-x-auto rounded-xl border border-white/10">
+            <table className="w-full min-w-[640px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-white/10 bg-navy-900/80 text-xs uppercase tracking-wider text-silver-400">
+                  <th className="px-4 py-3 font-semibold">Severity</th>
+                  <th className="px-4 py-3 font-semibold">Rule</th>
+                  <th className="px-4 py-3 font-semibold">Finding</th>
+                  <th className="px-4 py-3 font-semibold">Recommendation</th>
+                </tr>
+              </thead>
+              <tbody>
+                {analysis.findings.map((f) => {
+                  const s = severityStyles[f.severity];
+                  return (
+                    <tr
+                      key={f.ruleId}
+                      className={`border-b border-white/5 ${s.bg}`}
+                    >
+                      <td className="px-4 py-3 align-top">
+                        <span
+                          className={`inline-block rounded-full px-2 py-0.5 text-xs font-bold uppercase ${s.badge}`}
+                        >
+                          {severityLabel(f.severity)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 align-top">
+                        <p className={`font-mono text-xs font-bold ${s.text}`}>
+                          {f.ruleId}
+                        </p>
+                        <p className="mt-0.5 text-xs text-silver-400">{f.category}</p>
+                      </td>
+                      <td className="px-4 py-3 align-top text-silver-200">
+                        {f.message}
+                      </td>
+                      <td className="px-4 py-3 align-top text-silver-400">
+                        {f.recommendation || "—"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {analysis.recommendations.length > 0 && (
         <div>
           <h3 className="mb-4 text-sm font-semibold text-white">
-            DBA Recommendations (Pre-AI)
+            Prioritized DBA Actions (Pre-AI)
           </h3>
           <ul className="space-y-2 text-sm text-silver-300">
-            {analysis.recommendations.map((rec) => (
+            {analysis.recommendations.map((rec, i) => (
               <li
-                key={rec}
+                key={`${i}-${rec.slice(0, 40)}`}
                 className="rounded-lg border border-white/10 bg-navy-900/50 px-4 py-2.5"
               >
-                • {rec}
+                <span className="font-semibold text-accent">{i + 1}.</span> {rec}
               </li>
             ))}
           </ul>
