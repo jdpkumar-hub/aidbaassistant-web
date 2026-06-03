@@ -33,13 +33,14 @@ export function DemoReport() {
                 Request Full Demo
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link
-                href="/demo"
+              <a
+                href="/reports/sql_performance_report.pdf"
+                download="AI_DBA_Assistant_SQL_Report.pdf"
                 className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
               >
                 <Download className="h-4 w-4" />
                 Download Sample PDF
-              </Link>
+              </a>
             </div>
           </div>
 
