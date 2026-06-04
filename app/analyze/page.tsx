@@ -1,20 +1,31 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   CheckCircle2,
   FileCheck2,
   FileText,
   HardDrive,
+  LayoutDashboard,
   Loader2,
   MemoryStick,
   Sparkles,
   UploadCloud,
   XCircle,
 } from "lucide-react";
-import { ChangeEvent, DragEvent, useCallback, useMemo, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  DragEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ExecutiveDashboard } from "@/components/awr/ExecutiveDashboard";
+import { SiteShell } from "@/components/layout/SiteShell";
 import { payloadToDashboard } from "@/lib/awr-dashboard-types";
 import type { AwrAnalysisResult } from "@/lib/awr-rules";
 
@@ -64,7 +75,10 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
+const REDIRECT_DELAY_MS = 1500;
+
 export default function AnalyzePage() {
+  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -84,6 +98,14 @@ export default function AnalyzePage() {
   const showUploadBar = phase === "uploading";
   const showAnalysisBar = phase === "analyzing";
   const showPreview = phase === "complete";
+
+  useEffect(() => {
+    if (phase !== "complete" || !analysisId) return;
+    const timer = window.setTimeout(() => {
+      router.push(`/dashboard?id=${encodeURIComponent(analysisId)}`);
+    }, REDIRECT_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [phase, analysisId, router]);
 
   const processFile = useCallback((candidate: File | null) => {
     if (!candidate) return;
@@ -230,7 +252,7 @@ export default function AnalyzePage() {
   }
 
   return (
-    <main className="min-h-screen bg-navy-950 text-foreground">
+    <SiteShell>
       <div className="border-b border-white/10 bg-navy-900/40 py-2 text-center">
         <p className="text-xs text-silver-400">
           Powered by AI DBA Assistant Analysis Engine
@@ -435,14 +457,39 @@ export default function AnalyzePage() {
                     </>
                   )}
                 </button>
-                {phase === "complete" && (
-                  <span className="inline-flex items-center gap-2 text-sm text-emerald-400">
-                    <CheckCircle2 className="h-4 w-4" />
-                    Analysis complete
-                  </span>
+                {phase === "complete" && analysisId && (
+                  <>
+                    <span className="inline-flex items-center gap-2 text-sm text-emerald-400">
+                      <CheckCircle2 className="h-4 w-4" />
+                      Analysis complete — opening dashboard…
+                    </span>
+                    <Link
+                      href={`/dashboard?id=${analysisId}`}
+                      className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-accent/25 hover:bg-accent-hover"
+                    >
+                      <LayoutDashboard className="h-4 w-4" />
+                      View Dashboard
+                    </Link>
+                  </>
                 )}
               </div>
             </div>
+
+            {phase === "complete" && analysisId && (
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-4">
+                <p className="text-sm text-emerald-200">
+                  Your executive dashboard is ready. You will be redirected automatically, or
+                  open it now.
+                </p>
+                <Link
+                  href={`/dashboard?id=${analysisId}`}
+                  className="mt-3 inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-hover"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  View Dashboard
+                </Link>
+              </div>
+            )}
 
             {showPreview && ruleAnalysis && (
               <div className="rounded-2xl border border-white/10 bg-navy-900/70 p-6 shadow-xl shadow-black/20 lg:p-8">
@@ -461,9 +508,10 @@ export default function AnalyzePage() {
                   {analysisId && (
                     <Link
                       href={`/dashboard?id=${analysisId}`}
-                      className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-accent/25 hover:bg-accent-hover"
+                      className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-accent/25 hover:bg-accent-hover"
                     >
-                      Open Executive Dashboard
+                      <LayoutDashboard className="h-4 w-4" />
+                      View Dashboard
                     </Link>
                   )}
                   <Link
@@ -556,6 +604,6 @@ export default function AnalyzePage() {
           </aside>
         </div>
       </section>
-    </main>
+    </SiteShell>
   );
 }

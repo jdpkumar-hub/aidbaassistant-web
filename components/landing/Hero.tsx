@@ -1,5 +1,5 @@
+import Link from "next/link";
 import { ArrowRight, Play } from "lucide-react";
-import { ANALYSIS_APP_URL } from "@/lib/analysis-app-url";
 
 export function Hero() {
   return (
@@ -34,20 +34,20 @@ export function Hero() {
         </p>
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
-          <a
-            href={ANALYSIS_APP_URL}
+          <Link
+            href="/analyze"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-accent/30 transition-all hover:bg-accent-hover hover:shadow-accent/40"
           >
             Start Free Analysis
             <ArrowRight className="h-4 w-4" />
-          </a>
-          <a
+          </Link>
+          <Link
             href="/demo"
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-silver-400/25 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur transition-all hover:border-silver-400/40 hover:bg-white/10"
           >
             <Play className="h-4 w-4 fill-current" />
             Try Demo Report
-          </a>
+          </Link>
         </div>
 
         <p className="mt-14 text-sm font-medium uppercase tracking-wider text-silver-400">

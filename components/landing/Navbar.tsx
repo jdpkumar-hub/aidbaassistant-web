@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { ANALYSIS_APP_URL } from "@/lib/analysis-app-url";
-
 const links = [
   { href: "/", label: "Home" },
+  { href: "/analyze", label: "Analyze" },
+  { href: "/dashboard", label: "Dashboard" },
   { href: "/#features", label: "Features" },
   { href: "/demo", label: "Demo Report" },
   { href: "/pricing", label: "Pricing" },
@@ -38,12 +38,12 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
-          <a
-            href={ANALYSIS_APP_URL}
+          <Link
+            href="/analyze"
             className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white shadow-lg shadow-accent/25 transition-colors hover:bg-accent-hover"
           >
             Start Analysis
-          </a>
+          </Link>
         </div>
 
         <button
@@ -70,13 +70,13 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <a
-              href={ANALYSIS_APP_URL}
+            <Link
+              href="/analyze"
               className="mt-2 rounded-lg bg-accent px-4 py-2.5 text-center text-sm font-medium text-white"
               onClick={() => setOpen(false)}
             >
               Start Analysis
-            </a>
+            </Link>
           </div>
         </div>
       )}

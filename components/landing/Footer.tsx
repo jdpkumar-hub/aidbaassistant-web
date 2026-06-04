@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { ANALYSIS_APP_URL } from "@/lib/analysis-app-url";
-
 const productLinks = [
+  { href: "/analyze", label: "Analyze" },
+  { href: "/dashboard", label: "Dashboard" },
   { href: "/#features", label: "Features" },
   { href: "/demo", label: "Demo Report" },
   { href: "/pricing", label: "Pricing" },
-  { href: ANALYSIS_APP_URL, label: "Start Analysis", external: true },
 ];
 
 const companyLinks = [
@@ -42,21 +41,12 @@ export function Footer() {
             <ul className="mt-4 space-y-3">
               {productLinks.map((link) => (
                 <li key={link.label}>
-                  {"external" in link && link.external ? (
-                    <a
-                      href={link.href}
-                      className="text-sm text-silver-400 transition-colors hover:text-white"
-                    >
-                      {link.label}
-                    </a>
-                  ) : (
-                    <Link
-                      href={link.href}
-                      className="text-sm text-silver-400 transition-colors hover:text-white"
-                    >
-                      {link.label}
-                    </Link>
-                  )}
+                  <Link
+                    href={link.href}
+                    className="text-sm text-silver-400 transition-colors hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
