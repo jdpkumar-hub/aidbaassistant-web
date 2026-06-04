@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Activity,
   ArrowLeft,
@@ -10,10 +11,12 @@ import {
   FileText,
   Gauge,
   ListOrdered,
+  Loader2,
   TrendingUp,
+  UploadCloud,
 } from "lucide-react";
 import { SiteShell } from "@/components/layout/SiteShell";
-import { dashboardMock } from "@/lib/dashboard-mock";
+import type { DashboardData } from "@/lib/awr-dashboard-types";
 
 type TabId = "summary" | "waits" | "sql" | "recommendations";
 
@@ -58,12 +61,12 @@ function KpiCard({
   );
 }
 
-export default function DashboardPage() {
-  const data = dashboardMock;
+function DashboardBody({ data }: { data: DashboardData }) {
   const [activeTab, setActiveTab] = useState<TabId>("summary");
+  const topSqlMax = data.topSql[0]?.pctDbTime || 1;
 
   return (
-    <SiteShell>
+    <>
       <div className="border-b border-white/10 bg-navy-900/40">
         <div className="mx-auto max-w-6xl px-6 py-8 lg:px-8">
           <Link
@@ -210,6 +213,11 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 <div className="space-y-4">
+                  {data.waitEvents.length === 0 && (
+                    <p className="text-sm text-silver-400">
+                      No wait events extracted from this report.
+                    </p>
+                  )}
                   {data.waitEvents.map((row) => (
                     <div key={row.event}>
                       <div className="mb-1.5 flex justify-between gap-4 text-sm">
@@ -241,6 +249,11 @@ export default function DashboardPage() {
                     SQL ordered by % of database time (elapsed time)
                   </p>
                 </div>
+                {data.topSql.length === 0 && (
+                  <p className="text-sm text-silver-400">
+                    No SQL workload data extracted from this report.
+                  </p>
+                )}
                 <div className="overflow-x-auto rounded-xl border border-white/10">
                   <table className="w-full min-w-[520px] text-left text-sm">
                     <thead>
@@ -287,7 +300,7 @@ export default function DashboardPage() {
                         <div
                           className="h-full rounded-full bg-violet-500/80"
                           style={{
-                            width: `${(row.pctDbTime / data.topSql[0].pctDbTime) * 100}%`,
+                            width: `${(row.pctDbTime / topSqlMax) * 100}%`,
                           }}
                         />
                       </div>
@@ -326,13 +339,114 @@ export default function DashboardPage() {
           </div>
         </section>
 
+        {data.warnings && data.warnings.length > 0 && (
+          <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm text-amber-200/90">
+            {data.warnings.map((w) => (
+              <p key={w}>{w}</p>
+            ))}
+          </div>
+        )}
+
         <p className="text-center text-xs text-silver-500">
-          Sample AWR assessment data ·{" "}
-          <Link href="/demo" className="text-accent hover:underline">
-            View full demo report
+          Live AWR analysis ·{" "}
+          <Link href="/analyze" className="text-accent hover:underline">
+            Analyze another report
           </Link>
         </p>
       </div>
+    </>
+  );
+}
+
+function DashboardLoader() {
+  const searchParams = useSearchParams();
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchAnalysis = useCallback(async (id: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/analyze/awr?id=${encodeURIComponent(id)}`);
+      const json = await res.json();
+      if (!res.ok || !json.success || !json.dashboard) {
+        setError(
+          json.errors?.[0] ?? "Could not load analysis. Upload a new AWR report.",
+        );
+        setData(null);
+        return;
+      }
+      setData(json.dashboard as DashboardData);
+    } catch {
+      setError("Failed to load analysis results.");
+      setData(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fromUrl = searchParams.get("id");
+    const fromStorage =
+      typeof window !== "undefined"
+        ? sessionStorage.getItem("lastAnalysisId")
+        : null;
+    const id = fromUrl ?? fromStorage;
+    if (!id) {
+      setLoading(false);
+      setError(null);
+      setData(null);
+      return;
+    }
+    void fetchAnalysis(id);
+  }, [searchParams, fetchAnalysis]);
+
+  if (loading) {
+    return (
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-4 px-6 py-24">
+        <Loader2 className="h-10 w-10 animate-spin text-accent" />
+        <p className="text-sm text-silver-400">Loading AWR analysis results…</p>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="mx-auto max-w-lg px-6 py-24 text-center">
+        <UploadCloud className="mx-auto h-12 w-12 text-accent" />
+        <h2 className="mt-6 text-xl font-semibold text-white">
+          No analysis loaded
+        </h2>
+        <p className="mt-3 text-sm text-silver-400">
+          {error ??
+            "Upload an Oracle AWR HTML report and run analysis to view the executive dashboard."}
+        </p>
+        <Link
+          href="/analyze"
+          className="mt-8 inline-flex rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-accent/25 hover:bg-accent-hover"
+        >
+          Analyze AWR Report
+        </Link>
+      </div>
+    );
+  }
+
+  return <DashboardBody data={data} />;
+}
+
+export default function DashboardPage() {
+  return (
+    <SiteShell>
+      <Suspense
+        fallback={
+          <div className="mx-auto flex max-w-6xl justify-center py-24">
+            <Loader2 className="h-10 w-10 animate-spin text-accent" />
+          </div>
+        }
+      >
+        <DashboardLoader />
+      </Suspense>
     </SiteShell>
   );
 }

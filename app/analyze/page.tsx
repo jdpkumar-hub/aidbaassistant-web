@@ -15,11 +15,8 @@ import {
 } from "lucide-react";
 import { ChangeEvent, DragEvent, useCallback, useMemo, useRef, useState } from "react";
 import { ExecutiveDashboard } from "@/components/awr/ExecutiveDashboard";
-import {
-  demoAwrMetrics,
-  runAwrRules,
-  type AwrAnalysisResult,
-} from "@/lib/awr-rules";
+import { payloadToDashboard } from "@/lib/awr-dashboard-types";
+import type { AwrAnalysisResult } from "@/lib/awr-rules";
 
 const MAX_FILE_BYTES = 50 * 1024 * 1024; // 50 MB
 
@@ -76,6 +73,8 @@ export default function AnalyzePage() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [ruleAnalysis, setRuleAnalysis] = useState<AwrAnalysisResult | null>(null);
+  const [analysisId, setAnalysisId] = useState<string | null>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   const canAnalyze = useMemo(
     () => file && phase === "ready",
@@ -135,27 +134,99 @@ export default function AnalyzePage() {
     setUploadProgress(0);
     setAnalysisProgress(0);
     setRuleAnalysis(null);
+    setAnalysisId(null);
+    setAnalysisError(null);
     if (inputRef.current) inputRef.current.value = "";
   }
 
-  function runAnalysis() {
+  async function runAnalysis() {
     if (!file || phase !== "ready") return;
     setPhase("analyzing");
     setAnalysisProgress(0);
     setRuleAnalysis(null);
+    setAnalysisId(null);
+    setAnalysisError(null);
 
-    const timer = window.setInterval(() => {
-      setAnalysisProgress((current) => {
-        if (current >= 100) {
-          window.clearInterval(timer);
-          // Oracle DBA rules run first; AI layer would follow in production
-          setRuleAnalysis(runAwrRules(demoAwrMetrics()));
-          setPhase("complete");
-          return 100;
-        }
-        return Math.min(current + 8, 100);
+    const progressTimer = window.setInterval(() => {
+      setAnalysisProgress((current) => Math.min(current + 6, 90));
+    }, 200);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/analyze/awr", {
+        method: "POST",
+        body: formData,
       });
-    }, 280);
+      const json = await res.json();
+
+      window.clearInterval(progressTimer);
+      setAnalysisProgress(100);
+
+      if (!res.ok || !json.success) {
+        setAnalysisError(
+          json.errors?.join(" ") ??
+            "AWR analysis failed. Ensure the FastAPI service is running (see ARCHITECTURE.md).",
+        );
+        setPhase("ready");
+        return;
+      }
+
+      const id = json.analysisId as string;
+      if (!id) {
+        setAnalysisError("Analysis completed but no analysis ID was returned.");
+        setPhase("ready");
+        return;
+      }
+
+      setAnalysisId(id);
+      sessionStorage.setItem("lastAnalysisId", id);
+
+      const dashboard = json.dashboard ?? payloadToDashboard(json);
+      if (!dashboard) {
+        setAnalysisError("Analysis response missing dashboard data.");
+        setPhase("ready");
+        return;
+      }
+
+      type ApiFinding = {
+        ruleId: string;
+        category: string;
+        message: string;
+        severity: string;
+        recommendation: string;
+      };
+      const apiFindings = (json.rules?.findings ?? []) as ApiFinding[];
+      setRuleAnalysis({
+        healthScore: dashboard.healthScore,
+        riskLevel: dashboard.riskLevel,
+        bottleneckClassification:
+          dashboard.bottleneck as AwrAnalysisResult["bottleneckClassification"],
+        executiveSummary: dashboard.businessSummary,
+        executiveSummaryMarkdown: json.summary?.markdown ?? "",
+        businessSummary: dashboard.businessSummary,
+        technicalSummary: dashboard.technicalSummary,
+        topActions: json.summary?.topActions ?? dashboard.recommendations,
+        recommendations: dashboard.recommendations,
+        kpiCards: [],
+        findings: apiFindings.map((f) => ({
+          ruleId: f.ruleId,
+          category: f.category,
+          message: f.message,
+          severity: f.severity as "green" | "amber" | "red",
+          recommendation: f.recommendation,
+        })),
+        ruleResults: [],
+        rulesEvaluated: json.rules?.rulesEvaluated ?? 0,
+        rulesTriggered: json.rules?.rulesTriggered ?? 0,
+      });
+
+      setPhase("complete");
+    } catch {
+      window.clearInterval(progressTimer);
+      setAnalysisError("Network error while running AWR analysis.");
+      setPhase("ready");
+    }
   }
 
   return (
@@ -312,6 +383,16 @@ export default function AnalyzePage() {
                 </div>
               )}
 
+              {analysisError && (
+                <div
+                  role="alert"
+                  className="mt-4 flex items-start gap-3 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3"
+                >
+                  <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-400" />
+                  <p className="text-sm text-red-200/90">{analysisError}</p>
+                </div>
+              )}
+
               {showAnalysisBar && (
                 <div className="mt-6">
                   <div className="mb-2 flex items-center justify-between text-sm">
@@ -377,19 +458,28 @@ export default function AnalyzePage() {
                   <ExecutiveDashboard analysis={ruleAnalysis} />
                 </div>
                 <div className="mt-8 flex flex-wrap gap-3 border-t border-white/10 pt-6">
+                  {analysisId && (
+                    <Link
+                      href={`/dashboard?id=${analysisId}`}
+                      className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-accent/25 hover:bg-accent-hover"
+                    >
+                      Open Executive Dashboard
+                    </Link>
+                  )}
                   <Link
                     href="/demo"
                     className="rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
                   >
                     View full demo report
                   </Link>
-                  <a
-                    href="/reports/awr_performance_report.pdf"
-                    download
-                    className="rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
-                  >
-                    Download PDF
-                  </a>
+                  {analysisId && (
+                    <a
+                      href={`/api/report/awr?id=${analysisId}`}
+                      className="rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
+                    >
+                      Download AWR PDF
+                    </a>
+                  )}
                   <button
                     type="button"
                     onClick={clearFile}
