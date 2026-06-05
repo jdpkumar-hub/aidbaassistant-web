@@ -60,9 +60,27 @@ function KpiCard({
     </div>
   );
 }
-
-function DashboardBody({ data }: { data: DashboardData }) {
+function DashboardBody({
+  data,
+  analysisId,
+}: {
+  data: DashboardData;
+  analysisId: string;
+}) {
   const [activeTab, setActiveTab] = useState<TabId>("summary");
+	const handleDownloadPdf = () => {
+	  if (!analysisId) return;
+
+	  const apiUrl =
+		process.env.NEXT_PUBLIC_AWR_API_URL ||
+		"https://aidbaassistant-api-production.up.railway.app";
+
+	  window.open(
+		`${apiUrl}/report/${analysisId}/pdf`,
+		"_blank"
+	  );
+	};  
+
   const topSqlMax = data.topSql[0]?.pctDbTime || 1;
 
   return (
@@ -88,10 +106,20 @@ function DashboardBody({ data }: { data: DashboardData }) {
                 {data.instanceName} · {data.snapWindow}
               </p>
             </div>
-            <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-navy-800/80 px-3 py-2">
-              <Database className="h-4 w-4 text-accent" />
-              <span className="text-xs text-silver-400">AWR Rule Engine Assessment</span>
-            </div>
+			<div className="flex flex-wrap items-center gap-3">
+			  <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-navy-800/80 px-3 py-2">
+				<Database className="h-4 w-4 text-accent" />
+				<span className="text-xs text-silver-400">
+				  AWR Rule Engine Assessment
+				</span>
+			  </div>
+			  <button
+				onClick={handleDownloadPdf}
+				className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-hover"
+			  >
+				Download PDF
+			  </button>
+			</div>			
           </div>
         </div>
       </div>
@@ -432,7 +460,12 @@ function DashboardLoader() {
     );
   }
 
-  return <DashboardBody data={data} />;
+	const analysisId =
+	  searchParams.get("id") ??
+	  sessionStorage.getItem("lastAnalysisId") ??
+	  "";
+
+	return <DashboardBody data={data} analysisId={analysisId} />;
 }
 
 export default function DashboardPage() {
