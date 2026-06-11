@@ -694,7 +694,7 @@ function DashboardBody({
                 </div>
               </div>
             )}
-			{activeTab === "sqlInsight" && data.sqlInsight?.&& (
+			{activeTab === "sqlInsight" && data.sqlInsight && (
 			  <div className="space-y-6">
 
 				<div className="rounded-xl border border-slate-800 p-6 bg-slate-950">
