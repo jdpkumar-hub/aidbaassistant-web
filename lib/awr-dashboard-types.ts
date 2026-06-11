@@ -91,7 +91,11 @@ export type AwrAnalysisPayload = {
 	  title: string;
 	  finding: string;
 	  confidence: number;
-	};
+	  likely_cause: string;
+	  evidence: string[];
+	  business_impact: string;
+	  recommendation: string;
+	};  
 	sql_insight?: {
 	  sql_id: string;
 	  title: string;
