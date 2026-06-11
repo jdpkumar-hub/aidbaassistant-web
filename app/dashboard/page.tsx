@@ -340,14 +340,14 @@ function DashboardBody({
 						: selectedSql?.pctDbTime > 5
 						? "Medium"
 						: "Low"
-					}					
+					}
 					valueClass={
-					  data.sqlInsight?.severity === "High"
+					  selectedSql?.pctDbTime > 10
 						? "text-red-400"
-						: data.sqlInsight?.severity === "Medium"
+						: selectedSql?.pctDbTime > 5
 						? "text-yellow-400"
 						: "text-emerald-400"
-					}
+					}					
 				  />
 
 				  <KpiCard
