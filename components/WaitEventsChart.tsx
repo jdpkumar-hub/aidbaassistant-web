@@ -58,7 +58,7 @@ const chartData = data
 			  stroke="#94A3B8"
 			/>
 			<Tooltip
-			  formatter={(value: number) => [`${value.toFixed(1)}%`, "DB Time"]}
+			  formatter={(value) => [`${Number(value ?? 0).toFixed(1)}%`,"DB Time",]}
 			  contentStyle={{
 				backgroundColor: "#0F172A",
 				border: "1px solid #3B82F6",
