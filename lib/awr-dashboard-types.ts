@@ -87,6 +87,20 @@ export type AwrAnalysisPayload = {
     topActions: string[];
     markdown?: string;
   };
+	intelligent_finding?: {
+	  title: string;
+	  finding: string;
+	  confidence: number;
+	};
+	sql_insight?: {
+	  sql_id: string;
+	  title: string;
+	  finding: string;
+	  evidence: string[];
+	  recommendation: string;
+	  severity?: "Low" | "Medium" | "High";
+	  estimated_gain?: string;
+	};  
   waitEvents?: WaitEventRow[];
   topSql?: TopSqlRow[];
   recommendations?: string[];
