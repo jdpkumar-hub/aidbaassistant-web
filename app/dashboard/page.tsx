@@ -17,13 +17,30 @@ import {
 } from "lucide-react";
 import { SiteShell } from "@/components/layout/SiteShell";
 import type { DashboardData } from "@/lib/awr-dashboard-types";
+import WaitEventsChart from "@/components/WaitEventsChart";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-type TabId = "summary" | "waits" | "sql" | "recommendations";
+type TabId =
+  | "summary"
+  | "insights"
+  | "waits"
+  | "sql"
+  | "sqlInsight"
+  | "sqlTuning"
+  | "recommendations";
 
-const TABS: { id: TabId; label: string; icon: typeof FileText }[] = [
+const TABS = [
   { id: "summary", label: "Executive Summary", icon: FileText },
+  { id: "insights", label: "AI Findings", icon: Activity },
   { id: "waits", label: "Top Wait Events", icon: BarChart3 },
   { id: "sql", label: "Top SQL", icon: TrendingUp },
+  { id: "sqlInsight", label: "SQL Insight", icon: Database },
+  { id: "sqlTuning", label: "SQL Tuning", icon: Gauge },
   { id: "recommendations", label: "Recommendations", icon: ListOrdered },
 ];
 
@@ -60,11 +77,63 @@ function KpiCard({
     </div>
   );
 }
-
-function DashboardBody({ data }: { data: DashboardData }) {
+function DashboardBody({
+  data,
+  analysisId,
+}: {
+  data: DashboardData;
+  analysisId: string;
+}) {
   const [activeTab, setActiveTab] = useState<TabId>("summary");
-  const topSqlMax = data.topSql[0]?.pctDbTime || 1;
+  const [sqlText, setSqlText] = useState("");
+  const [sqlResult, setSqlResult] = useState<any>(null);
+  const [selectedSql, setSelectedSql] = useState<any>(null);
+  const [loadingSql, setLoadingSql] = useState(false);
+  
+	const handleDownloadPdf = () => {
+	  if (!analysisId) return;
+	  
+	  const apiUrl = process.env.NEXT_PUBLIC_AWR_API_URI; 
 
+	  window.open(
+		`${apiUrl}/report/${analysisId}/pdf`,
+		"_blank"
+	  );
+	};  
+
+  const topSqlMax = data.topSql[0]?.pctDbTime || 1;
+	const analyzeSql = async (sqlOverride?: string) => {
+	  const sqlToAnalyze =
+		typeof sqlOverride === "string"
+		  ? sqlOverride
+		  : sqlText;
+
+	  if (!sqlToAnalyze?.trim()) return;  
+  
+  setLoadingSql(true);
+
+  try {
+    const res = await fetch("/api/sql-rewrite", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        sql: sqlToAnalyze,
+      }),
+    });
+
+	const json = await res.json();
+	console.log("FULL JSON");
+	console.log(JSON.stringify(json, null, 2));
+	setSqlResult(json);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoadingSql(false);
+  }
+  };
+  console.log("SQL RESULT =", sqlResult);
   return (
     <>
       <div className="border-b border-white/10 bg-navy-900/40">
@@ -88,10 +157,20 @@ function DashboardBody({ data }: { data: DashboardData }) {
                 {data.instanceName} · {data.snapWindow}
               </p>
             </div>
-            <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-navy-800/80 px-3 py-2">
-              <Database className="h-4 w-4 text-accent" />
-              <span className="text-xs text-silver-400">AWR Rule Engine Assessment</span>
-            </div>
+			<div className="flex flex-wrap items-center gap-3">
+			  <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-navy-800/80 px-3 py-2">
+				<Database className="h-4 w-4 text-accent" />
+				<span className="text-xs text-silver-400">
+				  AWR Rule Engine Assessment
+				</span>
+			  </div>
+			  <button
+				onClick={handleDownloadPdf}
+				className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-hover"
+			  >
+				Download PDF
+			  </button>
+			</div>			
           </div>
         </div>
       </div>
@@ -106,18 +185,19 @@ function DashboardBody({ data }: { data: DashboardData }) {
               label="Health Score"
               value={`${data.healthScore} / 100`}
               valueClass={scoreColor(data.healthScore)}
-            />
-            <KpiCard
-              label="Risk Level"
-              value={data.riskLevel}
-              valueClass={
-                data.riskLevel === "Low"
-                  ? "text-emerald-400"
-                  : data.riskLevel === "Medium"
-                    ? "text-amber-400"
-                    : "text-red-400"
-              }
-            />
+            />       
+			<KpiCard
+			  label="SEVERITY"
+			  value={data.severity?.level || "Unknown"}
+			  valueClass={
+				data.severity?.level === "Low"
+				  ? "text-emerald-400"
+				  : data.severity?.level === "Medium"
+				  ? "text-yellow-400"
+				  : "text-red-400"
+			  }
+			  sub={`Score ${data.severity?.score || 0}/100 | Confidence ${data.severity?.confidence || 0}%`}
+			/>					
             <KpiCard
               label="Primary Bottleneck"
               value={data.bottleneck}
@@ -200,7 +280,297 @@ function DashboardBody({ data }: { data: DashboardData }) {
                 </div>
               </div>
             )}
+			
+			{activeTab === "insights" && data.intelligentFinding && (
+			  <div className="space-y-6">
 
+				<div className="rounded-xl border border-white/10 bg-navy-800/50 p-5">
+				  <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">
+					Finding
+				  </h3>
+				  <p className="mt-3 text-sm leading-relaxed text-silver-300">
+					{data.intelligentFinding.finding}
+				  </p>
+				</div>
+
+				<div className="rounded-xl border border-white/10 bg-navy-800/50 p-5">
+				  <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">
+					Likely Cause
+				  </h3>
+				  <p className="mt-3 text-sm leading-relaxed text-silver-300">
+					{data.intelligentFinding.likelyCause}
+				  </p>
+				</div>
+
+				<div className="rounded-xl border border-white/10 bg-navy-800/50 p-5">
+				  <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">
+					Evidence
+				  </h3>
+				  <ul className="mt-3 list-disc pl-5 text-sm text-silver-300 space-y-2">
+					{data.intelligentFinding.evidence.map((e) => (
+					  <li key={e}>{e}</li>
+					))}
+				  </ul>
+				</div>
+				<div className="rounded-xl border border-white/10 bg-navy-800/50 p-5">
+				  <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">
+					Business Impact
+				  </h3>
+				  <p className="mt-3 text-sm leading-relaxed text-silver-300">
+					{data.intelligentFinding.businessImpact}
+				  </p>
+				</div>
+
+				<div className="rounded-xl border border-white/10 bg-navy-800/50 p-5">
+				  <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">
+					Recommendation
+				  </h3>
+				  <p className="mt-3 text-sm leading-relaxed text-silver-300">
+					{data.intelligentFinding.recommendation}
+				  </p>
+				</div>
+
+			  </div>
+			)}
+			{activeTab === "sqlTuning" && (
+			  <div className="space-y-6">
+
+				{/* KPI Cards */}
+				<div className="grid gap-4 md:grid-cols-3">
+
+				  <KpiCard
+					label="Severity"
+					value={
+					  selectedSql?.pctDbTime > 10
+						? "High"
+						: selectedSql?.pctDbTime > 5
+						? "Medium"
+						: "Low"
+					}					
+					valueClass={
+					  data.sqlInsight.severity === "High"
+						? "text-red-400"
+						: data.sqlInsight.severity === "Medium"
+						? "text-yellow-400"
+						: "text-emerald-400"
+					}
+				  />
+
+				  <KpiCard
+					label="SQL Impact"
+					value={
+					  selectedSql
+						? `${selectedSql.pctDbTime}%`
+						: data.sqlInsight.finding?.match(/\d+\.\d+%/)?.[0] || "-"
+					}					
+				  />
+
+				  <KpiCard
+					label="Estimated Gain"
+					value={data.sqlInsight.estimated_gain}
+					valueClass="text-emerald-400"
+				  />
+
+				</div>
+				<div className="rounded-xl border border-white/10 bg-navy-800/50 p-5">
+					  <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">
+						SQL ID
+					  </h3>
+
+					  <p className="mt-3 font-mono text-lg text-white">
+						{selectedSql?.sqlId || data.sqlInsight.sql_id || "Unknown"}
+					  </p>
+					</div>
+					 <div className="rounded-xl border border-white/10 bg-navy-800/50 p-5">
+						  <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">
+							Likely Cause
+						  </h3>
+
+						  <p className="mt-3 text-silver-300">
+							{data.sqlInsight.likely_cause}
+						  </p>
+						</div>	
+					 <div className="rounded-xl border border-white/10 bg-navy-800/50 p-5">
+						  <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">
+							Business Impact
+						  </h3>
+
+						  <p className="mt-3 text-silver-300">
+							{data.sqlInsight.business_impact}
+						  </p>
+						</div>
+					<div className="rounded-xl border border-white/10 bg-navy-800/50 p-5">
+						  <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">
+							Recommended Actions
+						  </h3>
+
+						  <ul className="mt-3 list-disc pl-6 text-silver-300 space-y-2">
+							{data.sqlInsight.recommendation?.map((item, idx) => (
+							  <li key={idx}>{item}</li>
+							))}
+						  </ul>
+						</div>
+						<div className="rounded-xl border border-white/10 bg-navy-800/50 p-5">
+
+						  <h3 className="text-lg font-semibold text-white">
+							SQL Rewrite Generator
+						  </h3>
+							{selectedSql && (
+							  <div className="mb-6 rounded-xl border border-white/10 bg-navy-800/50 p-5">
+								<h3 className="text-accent font-semibold">
+								  AWR Context
+								</h3>
+
+								<div className="mt-4 grid gap-4 md:grid-cols-4">
+
+								  <div>
+									<div className="text-xs text-silver-400">
+									  SQL ID
+									</div>
+									<div>{selectedSql.sqlId}</div>
+								  </div>
+
+								  <div>
+									<div className="text-xs text-silver-400">
+									  DB Time %
+									</div>
+									<div>{selectedSql.pctDbTime}</div>
+								  </div>
+
+								  <div>
+									<div className="text-xs text-silver-400">
+									  Executions
+									</div>
+									<div>{selectedSql.executions}</div>
+								  </div>
+
+								  <div>
+									<div className="text-xs text-silver-400">
+									  Elapsed
+									</div>
+									<div>{selectedSql.elapsedSeconds}</div>
+								  </div>
+
+								</div>
+							  </div>
+							)}
+						  <textarea
+							value={sqlText}
+							onChange={(e) => setSqlText(e.target.value)}
+							placeholder="Paste Oracle SQL here..."
+							className="mt-4 h-56 w-full rounded-lg bg-black/30 p-4 font-mono text-sm text-white"
+						  />
+
+						  <button
+							onClick={() => analyzeSql()}
+							className="mt-4 rounded-lg bg-accent px-4 py-2 font-semibold text-white"
+						  >
+							{loadingSql ? "Analyzing..." : "Analyze SQL"}
+						  </button>
+						</div>						
+
+
+					{sqlResult && (
+					  <div className="space-y-6">
+
+						<div className="grid gap-4 md:grid-cols-3">
+						  <KpiCard
+							label="Risk Level"
+							value={sqlResult.risk_level}
+							valueClass="text-red-400"
+						  />
+
+						  <KpiCard
+							label="Issues"
+							value={String(sqlResult.issues?.length || 0)}
+						  />
+
+						  <KpiCard
+							label="Optimization Potential"
+							value="30-50%"
+							valueClass="text-emerald-400"
+						  />
+						</div>
+
+						<div className="rounded-xl border border-white/10 bg-navy-800/50 p-5">
+						  <h3 className="text-accent font-semibold">
+							Issues Found
+						  </h3>
+
+						  <ul className="mt-3 list-disc pl-6 text-silver-300">
+							{sqlResult.issues?.map((issue: any, idx: number) => (
+							  <li key={idx}>
+								{typeof issue === "string"
+								  ? issue
+								  : JSON.stringify(issue)}
+							  </li>
+							))}							
+						  </ul>
+						</div>
+						<div className="mt-6">
+						  <h3 className="text-lg font-semibold text-accent">
+							Optimized SQL
+						  </h3>
+
+						  <div className="mb-3 flex gap-2">
+							<button
+							  onClick={() =>
+								navigator.clipboard.writeText(sqlResult?.optimized_sql || "")
+							  }
+							  className="rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-white"
+							>
+							  Copy SQL
+							</button>
+
+							<button
+							  onClick={() => {
+								const blob = new Blob(
+								  [sqlResult?.optimized_sql || ""],
+								  { type: "text/sql" }
+								);
+
+								const url = URL.createObjectURL(blob);
+
+								const a = document.createElement("a");
+								a.href = url;
+								a.download = "optimized_sql.sql";
+								a.click();
+
+								URL.revokeObjectURL(url);
+							  }}
+							  className="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white"
+							>
+							  Download SQL
+							</button>
+						  </div>
+
+						  <pre className="overflow-auto rounded-lg bg-black/40 p-4 font-mono text-sm text-green-300">
+							{sqlResult?.optimized_sql}
+						  </pre>
+						</div>
+						
+
+						{sqlResult?.index_recommendations?.length > 0 && (
+						  <div className="mt-6">
+							<h3 className="text-lg font-semibold text-accent">
+							  Recommended Indexes
+							</h3>
+
+							<ul className="mt-3 list-disc pl-6 text-silver-300">
+							  {sqlResult.index_recommendations.map(
+								(rec: string, idx: number) => (
+								  <li key={idx}>{rec}</li>
+								)
+							  )}
+							</ul>
+						  </div>
+						)}
+
+					  </div>
+					)}	
+					  </div>
+					)}	
+										
             {activeTab === "waits" && (
               <div className="space-y-6">
                 <div>
@@ -211,7 +581,11 @@ function DashboardBody({ data }: { data: DashboardData }) {
                   <p className="mt-1 text-sm text-silver-400">
                     Ranked by percentage of database time during snapshot window
                   </p>
+					{data.waitEvents.length > 0 && (
+					  <WaitEventsChart data={data.waitEvents} />
+					)}				  
                 </div>
+				{/*
                 <div className="space-y-4">
                   {data.waitEvents.length === 0 && (
                     <p className="text-sm text-silver-400">
@@ -234,7 +608,7 @@ function DashboardBody({ data }: { data: DashboardData }) {
                       </div>
                     </div>
                   ))}
-                </div>
+                </div>   */}
               </div>
             )}
 
@@ -262,6 +636,7 @@ function DashboardBody({ data }: { data: DashboardData }) {
                         <th className="px-4 py-3 font-semibold">% DB Time</th>
                         <th className="px-4 py-3 font-semibold">Executions</th>
                         <th className="px-4 py-3 font-semibold">Elapsed (s)</th>
+						<th className="px-4 py-3 font-semibold">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -284,6 +659,20 @@ function DashboardBody({ data }: { data: DashboardData }) {
                           <td className="px-4 py-3 text-silver-300">
                             {row.elapsedSec}
                           </td>
+							<td className="px-4 py-3">
+
+							  <button
+								onClick={() => {
+								  setSelectedSql(row);
+								  setSqlText(row.sqlText || "");
+								  setActiveTab("sqlTuning");
+								}}							  
+								className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+							  >
+								Tune SQL
+							  </button>
+
+							</td>						  
                         </tr>
                       ))}
                     </tbody>
@@ -309,6 +698,39 @@ function DashboardBody({ data }: { data: DashboardData }) {
                 </div>
               </div>
             )}
+			{activeTab === "sqlInsight" && data.sqlInsight && (
+			  <div className="space-y-6">
+
+				<div className="rounded-xl border border-slate-800 p-6 bg-slate-950">
+				  <h3 className="text-xl font-bold mb-4">
+					{data.sqlInsight.title}
+				  </h3>
+
+				  <p>{data.sqlInsight.finding}</p>
+				</div>
+
+				<div className="rounded-xl border border-slate-800 p-6 bg-slate-950">
+				  <h3 className="text-xl font-bold mb-4">
+					Evidence
+				  </h3>
+
+				  <ul className="list-disc pl-6 space-y-2">
+					{data.sqlInsight.evidence.map((item, idx) => (
+					  <li key={idx}>{item}</li>
+					))}
+				  </ul>
+				</div>
+
+				<div className="rounded-xl border border-slate-800 p-6 bg-slate-950">
+				  <h3 className="text-xl font-bold mb-4">
+					Recommendation
+				  </h3>
+
+				  <p>{data.sqlInsight.recommendation}</p>
+				</div>
+
+			  </div>
+			)}
 
             {activeTab === "recommendations" && (
               <div className="space-y-6">
@@ -377,6 +799,9 @@ function DashboardLoader() {
         setData(null);
         return;
       }
+	console.log("DASHBOARD JSON", json.dashboard);
+	console.log("INTELLIGENT FINDING", json.dashboard.intelligentFinding);	
+	console.log("SQL INSIGHT", json.dashboard.sqlInsight);	
       setData(json.dashboard as DashboardData);
     } catch {
       setError("Failed to load analysis results.");
@@ -432,7 +857,12 @@ function DashboardLoader() {
     );
   }
 
-  return <DashboardBody data={data} />;
+	const analysisId =
+	  searchParams.get("id") ??
+	  sessionStorage.getItem("lastAnalysisId") ??
+	  "";
+
+	return <DashboardBody data={data} analysisId={analysisId} />;
 }
 
 export default function DashboardPage() {

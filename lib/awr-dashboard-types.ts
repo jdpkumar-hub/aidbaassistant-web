@@ -14,11 +14,25 @@ export type TopSqlRow = {
   elapsedSec: string | null;
 };
 
+export type IntelligentFinding = {
+  title: string;
+  finding: string;
+  likelyCause: string;
+  evidence: string[];
+  businessImpact: string;
+  recommendation: string;
+};
+
 export type DashboardData = {
   databaseName: string;
   instanceName: string;
   snapWindow: string;
   healthScore: number;
+	severity?: {
+	  level: string;
+	  score: number;
+	  confidence: number;
+	};  
   riskLevel: RiskLevel;
   bottleneck: string;
   confidence: number;
@@ -28,7 +42,15 @@ export type DashboardData = {
   waitEvents: WaitEventRow[];
   topSql: TopSqlRow[];
   recommendations: string[];
-  warnings?: string[];
+  intelligentFinding?: IntelligentFinding;
+	sqlInsight?: {
+		sqlId: string;
+		title: string;
+		finding: string;
+		evidence: string[];
+		recommendation: string;
+	};
+  warnings?: string[];  
 };
 
 export type AwrAnalysisPayload = {
@@ -98,6 +120,16 @@ export function payloadToDashboard(payload: AwrAnalysisPayload): DashboardData |
       executions: row.executions ?? "—",
       elapsedSec: row.elapsedSec ?? "—",
     })),
+	intelligentFinding: payload.intelligent_finding
+	  ? {
+		  title: payload.intelligent_finding.title,
+		  finding: payload.intelligent_finding.finding,
+		  likelyCause: payload.intelligent_finding.likely_cause,
+		  evidence: payload.intelligent_finding.evidence ?? [],
+		  businessImpact: payload.intelligent_finding.business_impact,
+		  recommendation: payload.intelligent_finding.recommendation,
+		}
+	  : undefined,	
     recommendations:
       payload.recommendations?.length
         ? payload.recommendations
