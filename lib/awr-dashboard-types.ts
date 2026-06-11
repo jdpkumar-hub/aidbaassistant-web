@@ -44,12 +44,17 @@ export type DashboardData = {
   recommendations: string[];
   intelligentFinding?: IntelligentFinding;
 	sqlInsight?: {
-		sqlId: string;
-		title: string;
-		finding: string;
-		evidence: string[];
-		recommendation: string;
-	};
+	  sqlId: string;
+	  title: string;
+	  finding: string;
+	  evidence: string[];
+	  recommendation: string[];
+	  severity?: "Low" | "Medium" | "High";
+	  estimated_gain?: string;
+	  sql_id?: string;
+	  likely_cause?: string;
+	  business_impact?: string;
+	};  
   warnings?: string[];  
 };
 
