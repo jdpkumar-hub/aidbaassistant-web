@@ -361,7 +361,7 @@ function DashboardBody({
 
 				  <KpiCard
 					label="Estimated Gain"
-					value={data.sqlInsight?.estimated_gain}
+					value={data.sqlInsight.estimated_gain}
 					valueClass="text-emerald-400"
 				  />
 
@@ -372,7 +372,7 @@ function DashboardBody({
 					  </h3>
 
 					  <p className="mt-3 font-mono text-lg text-white">
-						{selectedSql?.sqlId || data.sqlInsight?.sql_id || "Unknown"}
+						{selectedSql?.sqlId || data.sqlInsight.sql_id || "Unknown"}
 					  </p>
 					</div>
 					 <div className="rounded-xl border border-white/10 bg-navy-800/50 p-5">
