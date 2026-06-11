@@ -12,6 +12,7 @@ export type TopSqlRow = {
   pctDbTime: number;
   executions: string | null;
   elapsedSec: string | null;
+  sqlText?: string;
 };
 
 export type IntelligentFinding = {
