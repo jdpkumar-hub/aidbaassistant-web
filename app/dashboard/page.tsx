@@ -18,12 +18,6 @@ import {
 import { SiteShell } from "@/components/layout/SiteShell";
 import type { DashboardData } from "@/lib/awr-dashboard-types";
 import WaitEventsChart from "@/components/WaitEventsChart";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 type TabId =
   | "summary"
