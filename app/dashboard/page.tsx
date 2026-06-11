@@ -361,7 +361,7 @@ function DashboardBody({
 
 				  <KpiCard
 					label="Estimated Gain"
-					value={data.sqlInsight?.estimated_gain}
+					value={data.sqlInsight?.estimated_gain || "-"}
 					valueClass="text-emerald-400"
 				  />
 
