@@ -77,7 +77,7 @@ const chartData = data
 			  <LabelList
 				dataKey="pctDbTime"
 				position="right"
-				formatter={(v: number) => `${v.toFixed(1)}%`}
+				formatter={(v: any) => `${Number(v ?? 0).toFixed(1)}%`}
 			  />
 			</Bar>			
           </BarChart>
