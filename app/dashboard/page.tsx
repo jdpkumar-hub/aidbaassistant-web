@@ -821,9 +821,6 @@ function DashboardLoader() {
         : null;
     const id = fromUrl ?? fromStorage;
     if (!id) {
-      setLoading(false);
-      setError(null);
-      setData(null);
       return;
     }
     void fetchAnalysis(id);
