@@ -342,9 +342,9 @@ function DashboardBody({
 						: "Low"
 					}					
 					valueClass={
-					  data.sqlInsight.severity === "High"
+					  data.sqlInsight?.severity === "High"
 						? "text-red-400"
-						: data.sqlInsight.severity === "Medium"
+						: data.sqlInsight?.severity === "Medium"
 						? "text-yellow-400"
 						: "text-emerald-400"
 					}
@@ -355,13 +355,13 @@ function DashboardBody({
 					value={
 					  selectedSql
 						? `${selectedSql.pctDbTime}%`
-						: data.sqlInsight.finding?.match(/\d+\.\d+%/)?.[0] || "-"
+						: data.sqlInsight?.finding?.match(/\d+\.\d+%/)?.[0] || "-"
 					}					
 				  />
 
 				  <KpiCard
 					label="Estimated Gain"
-					value={data.sqlInsight.estimated_gain}
+					value={data.sqlInsight?.estimated_gain}
 					valueClass="text-emerald-400"
 				  />
 
@@ -372,7 +372,7 @@ function DashboardBody({
 					  </h3>
 
 					  <p className="mt-3 font-mono text-lg text-white">
-						{selectedSql?.sqlId || data.sqlInsight.sql_id || "Unknown"}
+						{selectedSql?.sqlId || data.sqlInsight?.sql_id || "Unknown"}
 					  </p>
 					</div>
 					 <div className="rounded-xl border border-white/10 bg-navy-800/50 p-5">
@@ -381,7 +381,7 @@ function DashboardBody({
 						  </h3>
 
 						  <p className="mt-3 text-silver-300">
-							{data.sqlInsight.likely_cause}
+							{data.sqlInsight?.likely_cause}
 						  </p>
 						</div>	
 					 <div className="rounded-xl border border-white/10 bg-navy-800/50 p-5">
@@ -390,7 +390,7 @@ function DashboardBody({
 						  </h3>
 
 						  <p className="mt-3 text-silver-300">
-							{data.sqlInsight.business_impact}
+							{data.sqlInsight?.business_impact}
 						  </p>
 						</div>
 					<div className="rounded-xl border border-white/10 bg-navy-800/50 p-5">
@@ -399,7 +399,7 @@ function DashboardBody({
 						  </h3>
 
 						  <ul className="mt-3 list-disc pl-6 text-silver-300 space-y-2">
-							{data.sqlInsight.recommendation?.map((item, idx) => (
+							{data.sqlInsight?.recommendation?.map((item, idx) => (
 							  <li key={idx}>{item}</li>
 							))}
 						  </ul>
@@ -694,15 +694,15 @@ function DashboardBody({
                 </div>
               </div>
             )}
-			{activeTab === "sqlInsight" && data.sqlInsight && (
+			{activeTab === "sqlInsight" && data.sqlInsight?.&& (
 			  <div className="space-y-6">
 
 				<div className="rounded-xl border border-slate-800 p-6 bg-slate-950">
 				  <h3 className="text-xl font-bold mb-4">
-					{data.sqlInsight.title}
+					{data.sqlInsight?.title}
 				  </h3>
 
-				  <p>{data.sqlInsight.finding}</p>
+				  <p>{data.sqlInsight?.finding}</p>
 				</div>
 
 				<div className="rounded-xl border border-slate-800 p-6 bg-slate-950">
@@ -711,7 +711,7 @@ function DashboardBody({
 				  </h3>
 
 				  <ul className="list-disc pl-6 space-y-2">
-					{data.sqlInsight.evidence.map((item, idx) => (
+					{data.sqlInsight?.evidence.map((item, idx) => (
 					  <li key={idx}>{item}</li>
 					))}
 				  </ul>
@@ -722,7 +722,7 @@ function DashboardBody({
 					Recommendation
 				  </h3>
 
-				  <p>{data.sqlInsight.recommendation}</p>
+				  <p>{data.sqlInsight?.recommendation}</p>
 				</div>
 
 			  </div>
