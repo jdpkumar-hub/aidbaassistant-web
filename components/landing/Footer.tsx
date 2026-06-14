@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { AuthRequiredLink } from "@/components/auth/AuthRequiredLink";
+
 const productLinks = [
-  { href: "/analyze", label: "Analyze" },
-  { href: "/dashboard", label: "Dashboard" },
+  { href: "/analyze", label: "Analyze", requiresAuth: true },
+  { href: "/dashboard", label: "Dashboard", requiresAuth: true },
   { href: "/#features", label: "Features" },
-  { href: "/demo", label: "Demo Report" },
-  { href: "/pricing", label: "Pricing" },
+  { href: "/#demo", label: "Demo Report" },
+  { href: "/#pricing", label: "Pricing" },
 ];
 
 const companyLinks = [
@@ -41,12 +43,21 @@ export function Footer() {
             <ul className="mt-4 space-y-3">
               {productLinks.map((link) => (
                 <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-silver-400 transition-colors hover:text-white"
-                  >
-                    {link.label}
-                  </Link>
+                  {link.requiresAuth ? (
+                    <AuthRequiredLink
+                      href={link.href}
+                      className="text-sm text-silver-400 transition-colors hover:text-white"
+                    >
+                      {link.label}
+                    </AuthRequiredLink>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      className="text-sm text-silver-400 transition-colors hover:text-white"
+                    >
+                      {link.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
