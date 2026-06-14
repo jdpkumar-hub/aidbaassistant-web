@@ -1,8 +1,6 @@
 "use client";
-
 import Link from "next/link";
 import { Suspense, useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import {
   Activity,
   ArrowLeft,
@@ -18,6 +16,9 @@ import {
 import { SiteShell } from "@/components/layout/SiteShell";
 import type { DashboardData } from "@/lib/awr-dashboard-types";
 import WaitEventsChart from "@/components/WaitEventsChart";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
+
 
 type TabId =
   | "summary"
@@ -38,6 +39,11 @@ const TABS = [
   { id: "recommendations", label: "Recommendations", icon: ListOrdered },
 ];
 
+const handleLogout = () => {
+	sessionStorage.removeItem("lastAnalysisId");
+	signOut({ callbackUrl: "/login" });
+};
+						
 function scoreColor(score: number): string {
   if (score >= 80) return "text-emerald-400";
   if (score >= 60) return "text-amber-400";
@@ -138,7 +144,14 @@ function DashboardBody({
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Home
-          </Link>
+          </Link> &nbsp;&nbsp;
+		  
+			<button
+			  onClick={handleLogout}
+			  className="rounded-lg bg-red-600 px-4 py-2 text-white"
+			>
+			  Logout
+			</button>		  
           <div className="mt-6 flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest text-accent">
@@ -777,10 +790,20 @@ function DashboardBody({
 }
 
 function DashboardLoader() {
-  const searchParams = useSearchParams();
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+	const searchParams = useSearchParams();
+
+	const [data, setData] = useState<DashboardData | null>(null);
+	const [error, setError] = useState<string | null>(null);
+	const [loading, setLoading] = useState(true);
+
+	const { data: session, status } = useSession();
+	const router = useRouter();
+
+	useEffect(() => {
+	  if (status === "unauthenticated") {
+		router.replace("/login");
+	  }
+	}, [status, router]);
 
   const fetchAnalysis = useCallback(async (id: string) => {
     setLoading(true);
@@ -795,9 +818,7 @@ function DashboardLoader() {
         setData(null);
         return;
       }
-	console.log("DASHBOARD JSON", json.dashboard);
-	console.log("INTELLIGENT FINDING", json.dashboard.intelligentFinding);	
-	console.log("SQL INSIGHT", json.dashboard.sqlInsight);	
+
       setData(json.dashboard as DashboardData);
     } catch {
       setError("Failed to load analysis results.");
@@ -815,10 +836,19 @@ function DashboardLoader() {
         : null;
     const id = fromUrl ?? fromStorage;
     if (!id) {
+	  setLoading(false);	
       return;
     }
     void fetchAnalysis(id);
   }, [searchParams, fetchAnalysis]);
+ 
+	if (status === "loading") {
+	  return (
+		<div className="p-10 text-center text-white">
+		  Checking login...
+		</div>
+	  );
+	}
 
   if (loading) {
     return (
