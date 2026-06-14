@@ -26,6 +26,32 @@ const userMenuLinks = [
   { href: "/account", label: "Account" },
 ];
 
+function UserAvatar({
+  image,
+  initial,
+  className,
+}: {
+  image?: string | null;
+  initial: string;
+  className: string;
+}) {
+  if (image) {
+    return (
+      <span
+        className={`${className} bg-cover bg-center`}
+        style={{ backgroundImage: `url(${JSON.stringify(image)})` }}
+        aria-hidden="true"
+      />
+    );
+  }
+
+  return (
+    <span className={`${className} bg-accent text-xs font-bold text-white`}>
+      {initial}
+    </span>
+  );
+}
+
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -80,18 +106,11 @@ export function Navbar() {
                   aria-expanded={userMenuOpen}
                   aria-haspopup="menu"
                 >
-                  {session?.user?.image ? (
-                    <img
-                      src={session.user.image}
-                      alt=""
-                      className="h-7 w-7 rounded-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-xs font-bold">
-                      {userInitial}
-                    </span>
-                  )}
+                  <UserAvatar
+                    image={session?.user?.image}
+                    initial={userInitial}
+                    className="flex h-7 w-7 items-center justify-center rounded-full"
+                  />
                   <span className="max-w-32 truncate text-silver-300">{userName}</span>
                   <ChevronDown className="h-4 w-4 text-silver-400" />
                 </button>
@@ -179,18 +198,11 @@ export function Navbar() {
             {isAuthenticated ? (
               <>
                 <div className="mt-3 flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-3">
-                  {session?.user?.image ? (
-                    <img
-                      src={session.user.image}
-                      alt=""
-                      className="h-9 w-9 rounded-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-sm font-bold text-white">
-                      {userInitial}
-                    </span>
-                  )}
+                  <UserAvatar
+                    image={session?.user?.image}
+                    initial={userInitial}
+                    className="flex h-9 w-9 items-center justify-center rounded-full"
+                  />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-white">{userName}</p>
                     <p className="text-xs text-silver-400">Signed in</p>

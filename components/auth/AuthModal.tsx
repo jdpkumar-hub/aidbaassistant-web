@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Github, Loader2, X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -24,15 +24,14 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     }
   }, [onClose, open, router, status]);
 
-  useEffect(() => {
-    if (!open) {
-      setPendingProvider(null);
-    }
-  }, [open]);
-
   if (!open) {
     return null;
   }
+
+  const handleClose = () => {
+    setPendingProvider(null);
+    onClose();
+  };
 
   const handleProviderLogin = (provider: "google" | "github") => {
     setPendingProvider(provider);
@@ -50,7 +49,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
         type="button"
         className="absolute inset-0 cursor-default"
         aria-label="Close authentication modal"
-        onClick={onClose}
+        onClick={handleClose}
       />
       <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-navy-900 p-6 text-white shadow-2xl shadow-black/50">
         <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
@@ -58,7 +57,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
           <button
             type="button"
             className="absolute right-0 top-0 rounded-lg p-2 text-silver-400 transition-colors hover:bg-white/10 hover:text-white"
-            onClick={onClose}
+            onClick={handleClose}
             aria-label="Close authentication modal"
           >
             <X className="h-5 w-5" />
@@ -100,7 +99,9 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
               {pendingProvider === "github" ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <Github className="h-5 w-5" />
+                <span className="text-lg leading-none" aria-hidden="true">
+                  GH
+                </span>
               )}
               GitHub Login
             </button>
