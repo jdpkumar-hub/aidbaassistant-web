@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Play } from "lucide-react";
+import { AuthRequiredLink } from "@/components/auth/AuthRequiredLink";
 
 export function Hero() {
   return (
@@ -34,13 +35,13 @@ export function Hero() {
         </p>
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
-          <Link
+          <AuthRequiredLink
             href="/analyze"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-accent/30 transition-all hover:bg-accent-hover hover:shadow-accent/40"
           >
             Start Free Analysis
             <ArrowRight className="h-4 w-4" />
-          </Link>
+          </AuthRequiredLink>
           <Link
             href="/demo"
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-silver-400/25 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur transition-all hover:border-silver-400/40 hover:bg-white/10"

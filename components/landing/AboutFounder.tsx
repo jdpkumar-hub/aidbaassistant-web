@@ -3,6 +3,7 @@ import { Link2, Mail } from "lucide-react";
 export function AboutFounder({ standalone = false }: { standalone?: boolean }) {
   return (
     <section
+      id="about"
       className={`relative bg-navy-900/30 py-24 lg:py-32 ${
         standalone ? "" : "border-t border-white/10"
       }`}
