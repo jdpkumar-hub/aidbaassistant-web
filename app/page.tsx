@@ -1,22 +1,44 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { AboutFounder } from "@/components/landing/AboutFounder";
+import { AuthModal } from "@/components/landing/AuthModal";
+import { Contact } from "@/components/landing/Contact";
 import { DemoReport } from "@/components/landing/DemoReport";
 import { Features } from "@/components/landing/Features";
 import { Footer } from "@/components/landing/Footer";
 import { Hero } from "@/components/landing/Hero";
-import { HowItWorks } from "@/components/landing/HowItWorks";
 import { Navbar } from "@/components/landing/Navbar";
+import { Pricing } from "@/components/landing/Pricing";
 import { Testimonials } from "@/components/landing/Testimonials";
 import Link from "next/link";
 
 export default function Home() {
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const { status } = useSession();
+  const router = useRouter();
+
+  function handleAnalyzeClick() {
+    if (status === "authenticated") {
+      router.push("/analyze");
+      return;
+    }
+    setAuthModalOpen(true);
+  }
+
   return (
     <div className="min-h-screen bg-navy-950 text-foreground">
       <Navbar />
       <main>
-        <Hero />
+        <Hero onRequireAuth={handleAnalyzeClick} />
         <Features />
-        <HowItWorks />
         <DemoReport />
+        <Pricing onRequireAuth={handleAnalyzeClick} />
         <Testimonials />
+        <AboutFounder />
+        <Contact />
         <section className="border-t border-white/10 bg-navy-900/30 py-20">
           <div className="mx-auto max-w-7xl px-6 text-center lg:px-8">
             <h2 className="text-2xl font-bold text-white sm:text-3xl">
@@ -27,12 +49,13 @@ export default function Home() {
               enterprise teams.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Link
-                href="/analyze"
+              <button
+                type="button"
+                onClick={handleAnalyzeClick}
                 className="rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover"
               >
                 Start Free Analysis
-              </Link>
+              </button>
               <Link
                 href="/pricing"
                 className="rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
@@ -50,6 +73,7 @@ export default function Home() {
         </section>
       </main>
       <Footer />
+      <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </div>
   );
 }

@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { Check } from "lucide-react";
-import { ANALYSIS_APP_URL } from "@/lib/analysis-app-url";
+import Link from "next/link";
 
 const tiers = [
   {
@@ -16,7 +15,8 @@ const tiers = [
       "Email support",
     ],
     cta: "Start Free",
-    ctaHref: ANALYSIS_APP_URL,
+    ctaHref: "/analyze",
+    requiresAuth: true,
   },
   {
     name: "Professional",
@@ -32,7 +32,8 @@ const tiers = [
       "Priority email support",
     ],
     cta: "Start Professional",
-    ctaHref: ANALYSIS_APP_URL,
+    ctaHref: "/analyze",
+    requiresAuth: true,
   },
   {
     name: "Enterprise",
@@ -49,12 +50,17 @@ const tiers = [
     ],
     cta: "Contact Sales",
     ctaHref: "/contact",
+    requiresAuth: false,
   },
 ];
 
-export function Pricing() {
+type PricingProps = {
+  onRequireAuth?: () => void;
+};
+
+export function Pricing({ onRequireAuth }: PricingProps) {
   return (
-    <section className="relative border-t border-white/10 py-24 lg:py-32">
+    <section id="pricing" className="relative border-t border-white/10 py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-wider text-accent">
@@ -109,9 +115,10 @@ export function Pricing() {
                 ))}
               </ul>
 
-              {tier.ctaHref.startsWith("http") ? (
-                <a
-                  href={tier.ctaHref}
+              {tier.requiresAuth ? (
+                <button
+                  type="button"
+                  onClick={onRequireAuth}
                   className={`mt-8 block rounded-lg py-3 text-center text-sm font-semibold transition-colors ${
                     tier.highlighted
                       ? "bg-accent text-white hover:bg-accent-hover"
@@ -119,7 +126,7 @@ export function Pricing() {
                   }`}
                 >
                   {tier.cta}
-                </a>
+                </button>
               ) : (
                 <Link
                   href={tier.ctaHref}

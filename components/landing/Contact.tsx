@@ -13,6 +13,7 @@ export function Contact({ standalone = false }: { standalone?: boolean }) {
 
   return (
     <section
+      id="contact"
       className={`relative py-24 lg:py-32 ${
         standalone ? "" : "border-t border-white/10"
       }`}
