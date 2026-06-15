@@ -1,10 +1,8 @@
 "use client";
-
-import { X } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { GitHub, Loader2, X } from "lucide-react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { AuthPanel } from "@/components/auth/AuthPanel";
+import { useEffect, useState } from "react";
 
 type AuthModalProps = {
   open: boolean;
@@ -14,6 +12,7 @@ type AuthModalProps = {
 export function AuthModal({ open, onClose }: AuthModalProps) {
   const router = useRouter();
   const { status } = useSession();
+  const [provider, setProvider] = useState<"google" | "github" | null>(null);
 
   useEffect(() => {
     if (open && status === "authenticated") {
@@ -23,6 +22,11 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   }, [open, status, onClose, router]);
 
   if (!open) return null;
+
+  async function handleLogin(selectedProvider: "google" | "github") {
+    setProvider(selectedProvider);
+    await signIn(selectedProvider, { callbackUrl: "/dashboard" });
+  }
 
   return (
     <div
@@ -51,8 +55,35 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
           Access the AWR analysis console and dashboard with your preferred
           account.
         </p>
-        <div className="mt-8 max-h-[70vh] overflow-y-auto pr-1">
-          <AuthPanel />
+
+        <div className="mt-8 space-y-3">
+          <button
+            type="button"
+            onClick={() => handleLogin("google")}
+            disabled={provider !== null}
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-white/15 bg-white px-4 py-3 text-sm font-semibold text-navy-950 transition-colors hover:bg-silver-100 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {provider === "google" ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <span className="text-base font-bold text-blue-600">G</span>
+            )}
+            Continue with Google
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleLogin("github")}
+            disabled={provider !== null}
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-white/15 bg-navy-950 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-navy-800 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {provider === "github" ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <span>GH</span>
+            )}
+            Continue with GitHub
+          </button>
         </div>
       </div>
     </div>

@@ -40,8 +40,8 @@ const TABS = [
 ];
 
 const handleLogout = () => {
-	sessionStorage.removeItem("lastAnalysisId");
-	signOut({ callbackUrl: "/login" });
+  sessionStorage.removeItem("lastAnalysisId");
+  signOut({ callbackUrl: "/" });
 };
 						
 function scoreColor(score: number): string {
