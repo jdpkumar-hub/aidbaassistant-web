@@ -1,9 +1,8 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { AuthPanel } from "@/components/auth/AuthPanel";
 
 export default function LoginPage() {
   const { status } = useSession();
@@ -24,18 +23,25 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-navy-950 px-4 py-16 text-white">
-      <div className="mx-auto w-full max-w-3xl rounded-2xl border border-white/10 bg-navy-900/80 p-8 shadow-2xl shadow-black/40">
-        <div className="mb-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-sm font-bold">
-            AI
-          </div>
-          <h1 className="mt-5 text-2xl font-bold">AI DBA Assistant</h1>
-          <p className="mt-2 text-sm text-silver-400">
-            Sign in or create a verified account to access the SaaS dashboard.
-          </p>
-        </div>
-        <AuthPanel />
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="w-full max-w-md rounded-lg border p-8">
+        <h1 className="mb-6 text-2xl font-bold">
+          AI DBA Assistant
+        </h1>
+
+        <button
+          onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+          className="mb-4 w-full rounded bg-blue-600 p-3 text-white"
+        >
+          Continue with Google
+        </button>
+
+        <button
+          onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
+          className="w-full rounded bg-gray-800 p-3 text-white"
+        >
+          Continue with GitHub
+        </button>
       </div>
     </div>
   );
