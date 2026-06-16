@@ -41,13 +41,16 @@ export function Navbar() {
     router.push(href);
   }
 
-  async function handleLogout() {
-    setOpen(false);
-    setUserMenuOpen(false);
-    sessionStorage.removeItem("lastAnalysisId");
-    await signOut({ redirect: false });
-    router.push("/");
-  }
+async function handleLogout() {
+  sessionStorage.setItem("loggingOut", "true");
+  setOpen(false);
+  setUserMenuOpen(false);
+  sessionStorage.removeItem("lastAnalysisId");
+  await signOut({
+    redirect: false,
+  });
+  window.location.href = "/";
+}
 
   return (
     <>

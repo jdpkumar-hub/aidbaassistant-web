@@ -39,9 +39,14 @@ const TABS = [
   { id: "recommendations", label: "Recommendations", icon: ListOrdered },
 ];
 
-const handleLogout = () => {
+const handleLogout = async () => {
   sessionStorage.removeItem("lastAnalysisId");
-  signOut({ callbackUrl: "/" });
+
+  await signOut({
+    redirect: false,
+  });
+
+  window.location.href = "/";
 };
 						
 function scoreColor(score: number): string {
@@ -145,13 +150,7 @@ function DashboardBody({
             <ArrowLeft className="h-4 w-4" />
             Back to Home
           </Link> &nbsp;&nbsp;
-		  
-			<button
-			  onClick={handleLogout}
-			  className="rounded-lg bg-red-600 px-4 py-2 text-white"
-			>
-			  Logout
-			</button>		  
+	  
           <div className="mt-6 flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest text-accent">
@@ -504,15 +503,62 @@ function DashboardBody({
 							Issues Found
 						  </h3>
 
-						  <ul className="mt-3 list-disc pl-6 text-silver-300">
-							{sqlResult.issues?.map((issue: any, idx: number) => (
-							  <li key={idx}>
-								{typeof issue === "string"
-								  ? issue
-								  : JSON.stringify(issue)}
-							  </li>
-							))}							
-						  </ul>
+							<ul className="mt-3 space-y-4">
+							  {sqlResult.issues?.map((issue: any, idx: number) => {
+
+								const item =
+								  typeof issue === "string"
+									? (() => {
+										try {
+										  return JSON.parse(issue);
+										} catch {
+										  return {
+											severity: "Unknown",
+											issue,
+											evidence: "",
+											recommendation: "",
+										  };
+										}
+									  })()
+									: issue;
+
+								return (
+								  <li
+									key={idx}
+									className="rounded-lg border border-blue-800 bg-slate-900 p-4" >
+										{item.severity !== "Unknown" && (
+										  <div className="mb-2 font-semibold text-yellow-400">
+											Severity: {item.severity}
+										  </div>
+										)}
+
+									  <div className="mb-2">
+										<span className="font-semibold text-blue-400">
+										  Issue:
+										</span>
+										<p>{item.issue}</p>
+									  </div>
+										{item.evidence && (
+										  <div className="mb-2">
+											<span className="font-semibold text-blue-400">
+											  Evidence:
+											</span>
+											<p>{item.evidence}</p>
+										  </div>
+										)}
+
+										{item.recommendation && (
+										  <div>
+											<span className="font-semibold text-green-400">
+											  Recommendation:
+											</span>
+											<p>{item.recommendation}</p>
+										  </div>
+										)}
+								   </li>
+								);
+							  })}
+							</ul>
 						</div>
 						<div className="mt-6">
 						  <h3 className="text-lg font-semibold text-accent">
@@ -551,7 +597,7 @@ function DashboardBody({
 							</button>
 						  </div>
 
-						  <pre className="overflow-auto rounded-lg bg-black/40 p-4 font-mono text-sm text-green-300">
+						  <pre className="max-h-[500px] overflow-auto rounded-lg bg-black/40 p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">
 							{sqlResult?.optimized_sql}
 						  </pre>
 						</div>
@@ -563,15 +609,63 @@ function DashboardBody({
 							  Recommended Indexes
 							</h3>
 
-							<ul className="mt-3 list-disc pl-6 text-silver-300">
-								{sqlResult.index_recommendations?.map((item: any, idx: number) => (
-								  <li key={idx}>
-									{typeof item === "string"
-									  ? item
-									  : item.ddl || JSON.stringify(item)}
+							<ul className="mt-3 space-y-4">
+							  {sqlResult.index_recommendations?.map((item: any, idx: number) => {
+
+								const rec =
+								  typeof item === "string"
+									? (() => {
+										try {
+										  return JSON.parse(item);
+										} catch {
+										  return {
+											table: "",
+											index_name: "",
+											statement: item,
+											rationale: "",
+										  };
+										}
+									  })()
+									: item;
+								return (
+								  <li
+									key={idx}
+									className="rounded-lg border border-blue-800 bg-slate-900 p-4"
+								  >
+									<div className="mb-2">
+									  <span className="font-semibold text-blue-400">
+										Table:
+									  </span>
+									  <p>{rec.table}</p>
+									</div>
+
+									<div className="mb-2">
+									  <span className="font-semibold text-yellow-400">
+										Index Name:
+									  </span>
+									  <p>{rec.index_name}</p>
+									</div>
+
+									<div className="mb-2">
+									  <span className="font-semibold text-green-400">
+										DDL:
+									  </span>
+
+									  <pre className="mt-2 overflow-x-auto rounded bg-black p-3 text-green-300">
+										{rec.statement || rec.ddl}
+									  </pre>
+									</div>
+
+									<div>
+									  <span className="font-semibold text-cyan-400">
+										Rationale:
+									  </span>
+									  <p>{rec.rationale}</p>
+									</div>
 								  </li>
-								))}							
-							</ul>
+								);
+							  })}
+							</ul>							
 						  </div>
 						)}
 
