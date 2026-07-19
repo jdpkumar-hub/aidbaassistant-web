@@ -57,9 +57,14 @@ async function handleLogout() {
       <header className="fixed top-0 z-50 w-full border-b border-white/10 bg-navy-900/80 backdrop-blur-xl">
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2.5 font-semibold text-white">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-xs font-bold tracking-tight">
-              AI
-            </span>
+				<Image
+				  src="/logo6.png"
+				  alt="AI DBA Assistant"
+				  width={60}
+				  height={60}
+				  priority
+				/>
+			    
             <span className="hidden sm:inline">AI DBA Assistant</span>
           </Link>
 
