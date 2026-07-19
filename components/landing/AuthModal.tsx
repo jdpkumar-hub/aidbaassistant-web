@@ -1,5 +1,5 @@
 "use client";
-import { GitHub, Loader2, X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
