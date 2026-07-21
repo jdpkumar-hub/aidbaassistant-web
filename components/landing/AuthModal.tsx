@@ -17,7 +17,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   useEffect(() => {
     if (open && status === "authenticated") {
       onClose();
-      router.push("/dashboard");
+      router.push("/login");
     }
   }, [open, status, onClose, router]);
 
@@ -25,7 +25,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
   async function handleLogin(selectedProvider: "google" | "github") {
     setProvider(selectedProvider);
-    await signIn(selectedProvider, { callbackUrl: "/dashboard" });
+    await signIn(selectedProvider);
   }
 
   return (

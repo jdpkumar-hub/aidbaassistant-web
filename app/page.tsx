@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AboutFounder } from "@/components/landing/AboutFounder";
@@ -14,11 +13,31 @@ import { Navbar } from "@/components/landing/Navbar";
 import { Pricing } from "@/components/landing/Pricing";
 import { Testimonials } from "@/components/landing/Testimonials";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const { status } = useSession();
   const router = useRouter();
+  
+	useEffect(() => {
+	  async function checkProfile() {
+		if (status !== "authenticated") return;
+
+		const res = await fetch("/api/profile/status");
+		const profile = await res.json();
+
+		console.log(profile);
+
+		if (profile.profileCompleted) {
+		  router.push("/dashboard");
+		} else {
+		  router.push("/account/profile");
+		}
+	  }
+
+	  checkProfile();
+	}, [status, router]);
 
   function handleAnalyzeClick() {
     if (status === "authenticated") {

@@ -8,11 +8,27 @@ export default function LoginPage() {
   const { status } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
-    if (status === "authenticated") {
-      router.replace("/dashboard");
-    }
-  }, [status, router]);
+	useEffect(() => {
+		async function checkProfile() {
+		  const res = await fetch("/api/profile/status");
+		  const profile = await res.json();
+
+		  console.log(profile);
+
+		  if (!profile.authenticated) return;
+
+		  if (profile.profileCompleted) {
+			console.log("Going to dashboard");
+			router.replace("/dashboard");
+		  } else {
+			console.log("Going to profile");
+			router.replace("/account/profile");
+		  }
+		}
+	  if (status === "authenticated") {
+		checkProfile();
+	  }
+	}, [status, router]);
 
   if (status === "loading") {
     return (
@@ -30,14 +46,14 @@ export default function LoginPage() {
         </h1>
 
         <button
-          onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+          onClick={() => signIn("google")}
           className="mb-4 w-full rounded bg-blue-600 p-3 text-white"
         >
           Continue with Google
         </button>
 
         <button
-          onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
+          onClick={() => signIn("github")}
           className="w-full rounded bg-gray-800 p-3 text-white"
         >
           Continue with GitHub
