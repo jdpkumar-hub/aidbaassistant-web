@@ -60,22 +60,18 @@ export default function LeadDrawer({
 
   if (!open || !lead) return null;
 
-  const saveLead = async () => {
-    try {
-	
-	  if (!lead) return;
-      setLoading(true);
-
-      const response = await fetch(`/api/admin/leads/${lead.id}`, {
-
+	const saveLead = async () => {
+		if (!lead) return;	
+		const currentLead = lead;	
+		try {
+		setLoading(true);	
+		const response = await fetch(`/api/admin/leads/${currentLead.id}`, {
         method: "PUT",
-
         headers: {
           "Content-Type": "application/json",
         },
 
         body: JSON.stringify(form),
-
       });
 
       if (!response.ok) {
@@ -100,31 +96,25 @@ export default function LeadDrawer({
 
   }
 async function convertCustomer() {
-
+    if (!lead) return;
+    const currentLead = lead;
     if (!confirm("Convert this lead into a customer?")) {
         return;
     }
-
     try {
-
         setLoading(true);
-
         const response = await fetch("/api/admin/customers", {
-
             method: "POST",
-
             headers: {
                 "Content-Type": "application/json",
             },
-
             body: JSON.stringify({
-                id: lead.id,
+                id: currentLead.id,
                 name: form.name,
                 email: form.email,
                 company: form.company,
                 phone: form.phone,
             }),
-
         });
 
         if (!response.ok) {
@@ -149,15 +139,17 @@ async function convertCustomer() {
 
 }  
 async function deleteLead() {
+  if (!lead) return;
+
+  const currentLead = lead;
 
   if (!confirm("Delete this lead?")) return;
 
   try {
-
     setLoading(true);
 
     const response = await fetch(
-      `/api/admin/leads/${lead.id}`,
+      `/api/admin/leads/${currentLead.id}`,
       {
         method: "DELETE",
       }
@@ -172,17 +164,11 @@ async function deleteLead() {
     window.location.reload();
 
   } catch (err) {
-
     console.error(err);
-
     alert("Unable to delete lead.");
-
   } finally {
-
     setLoading(false);
-
   }
-
 }
 	return (
 	  <>
@@ -459,6 +445,7 @@ async function deleteLead() {
 	  </>
 	);
 }
+
 function Field({
   title,
   value,
