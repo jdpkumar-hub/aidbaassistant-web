@@ -6,10 +6,41 @@ import { FormEvent, useState } from "react";
 export function Contact({ standalone = false }: { standalone?: boolean }) {
   const [submitted, setSubmitted] = useState(false);
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setSubmitted(true);
-  }
+	const [loading, setLoading] = useState(false);
+	async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+	  e.preventDefault();
+	  setLoading(true);
+	  const form = e.currentTarget;
+	  const formData = new FormData(form);
+	  const payload = {
+		name: formData.get("name"),
+		email: formData.get("email"),
+		company: formData.get("company"),
+		message: formData.get("message"),
+	  };
+
+	  try {
+		const response = await fetch("/api/contact", {
+		  method: "POST",
+		  headers: {
+			"Content-Type": "application/json",
+		  },
+		  body: JSON.stringify(payload),
+		});
+		const result = await response.json();
+		if (!response.ok) {
+		  alert(result.message || "Unable to send message.");
+		  return;
+		}
+		setSubmitted(true);
+		form.reset();
+	  } catch (err) {
+		console.error(err);
+		alert("Network error. Please try again.");
+	  } finally {
+		setLoading(false);
+	  }
+	}
 
   return (
     <section
@@ -135,13 +166,17 @@ export function Contact({ standalone = false }: { standalone?: boolean }) {
                     placeholder="Tell us about your Oracle environment..."
                   />
                 </div>
-                <button
-                  type="submit"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent py-3.5 text-sm font-semibold text-white transition-colors hover:bg-accent-hover sm:w-auto sm:px-8"
-                >
-                  Send Message
-                  <Send className="h-4 w-4" />
-                </button>
+				<button
+				  type="submit"
+				  disabled={loading}
+				  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent py-3.5 text-sm font-semibold text-white transition hover:bg-accent-hover disabled:opacity-50 sm:w-auto sm:px-8"
+				>
+
+				  {loading ? "Sending..." : "Send Message"}
+
+				  {!loading && <Send className="h-4 w-4" />}
+
+				</button>
               </form>
             )}
           </div>

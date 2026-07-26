@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AuthModal } from "@/components/landing/AuthModal";
+import { useState, useEffect, useRef } from "react";
+	
+
 
 const publicLinks = [
   { href: "/", label: "Home" },
@@ -16,6 +18,25 @@ const publicLinks = [
 ];
 
 export function Navbar() {
+  const [showLoginMenu, setShowLoginMenu] = useState(false);
+	const loginMenuRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+	  function handleClickOutside(event: MouseEvent) {
+		if (
+		  loginMenuRef.current &&
+		  !loginMenuRef.current.contains(event.target as Node)
+		) {
+		  setShowLoginMenu(false);
+		}
+	  }
+
+	  document.addEventListener("mousedown", handleClickOutside);
+
+	  return () => {
+		document.removeEventListener("mousedown", handleClickOutside);
+	  };
+	}, []); 
   const [open, setOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -94,7 +115,11 @@ async function handleLogout() {
                 >
                   Dashboard
                 </button>
-                <div className="relative">
+
+					<div
+					  ref={loginMenuRef}
+					  className="relative"
+					>
                   <button
                     type="button"
                     onClick={() => setUserMenuOpen((current) => !current)}
@@ -157,20 +182,46 @@ async function handleLogout() {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="text-sm text-silver-400 transition-colors hover:text-white"
-                >
+                  className="text-sm text-silver-400 transition-colors hover:text-white">
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <button
-                  type="button"
-                  onClick={() => setAuthModalOpen(true)}
-                  className="text-sm text-silver-400 transition-colors hover:text-white"
-                >
-                  Login
-                </button>
+				<div className="relative">
+
+				  <button
+					type="button"
+					onClick={() => setShowLoginMenu(!showLoginMenu)}
+					className="flex items-center gap-1 text-sm text-silver-400 transition-colors hover:text-white">
+					Login <ChevronDown className="h-4 w-4" />
+				  </button>
+
+					{showLoginMenu && (
+					<div className="absolute right-0 mt-3 w-80 overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl z-50">
+					  <button
+						type="button"
+						onClick={() => {
+						  setShowLoginMenu(false);
+						  setAuthModalOpen(true);
+						}}
+						className="group w-full border-b border-slate-800 px-6 py-5 text-left transition-all duration-200 hover:bg-slate-800" >
+						  <div className="text-lg font-semibold text-white group-hover:text-blue-400"> 👤 User Login </div>
+						  <p className="mt-1 text-sm text-slate-400"> Oracle DBA customers and consultants </p>
+					  </button>
+
+					  <Link
+						  href="/admin/login"
+						  onClick={() => setShowLoginMenu(false)}
+						  className="group block px-6 py-5 transition-all duration-200 hover:bg-slate-800">
+						  <div className="text-lg font-semibold text-white group-hover:text-blue-400">  🛡️ Business Center </div>
+						  <p className="mt-1 text-sm text-slate-400"> CRM • Customers • Billing • Analytics </p>
+					  </Link>
+					</div>
+					)}
+
+				</div>                
+				
                 <button
                   type="button"
                   onClick={() => handleProtectedNavigation("/analyze")}
