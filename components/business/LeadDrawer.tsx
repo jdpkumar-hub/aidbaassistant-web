@@ -60,10 +60,10 @@ export default function LeadDrawer({
 
   if (!open || !lead) return null;
 
-  async function saveLead() {
-
+  const saveLead = async () => {
     try {
-
+	
+	  if (!lead) return;
       setLoading(true);
 
       const response = await fetch(`/api/admin/leads/${lead.id}`, {
