@@ -98,7 +98,7 @@ function DashboardBody({
 	const handleDownloadPdf = () => {
 	  if (!analysisId) return;
 	  
-	  const apiUrl = process.env.NEXT_PUBLIC_AWR_API_URI; 
+	  const apiUrl = process.env.NEXT_PUBLIC_AWR_API_URL; 
 
 	  window.open(
 		`${apiUrl}/report/${analysisId}/pdf`,
