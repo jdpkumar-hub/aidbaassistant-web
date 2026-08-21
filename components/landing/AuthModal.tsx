@@ -1,8 +1,9 @@
 "use client";
 import { Loader2, X } from "lucide-react";
-import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { useSupabaseUser } from "@/lib/supabase/useSupabaseUser";
 
 type AuthModalProps = {
   open: boolean;
@@ -11,22 +12,37 @@ type AuthModalProps = {
 
 export function AuthModal({ open, onClose }: AuthModalProps) {
   const router = useRouter();
-  const { status } = useSession();
+  const supabase = createClient();
+  const { status } = useSupabaseUser();
   const [provider, setProvider] = useState<"google" | "github" | null>(null);
 
   useEffect(() => {
-    if (open && status === "authenticated") {
-      onClose();
-      router.push("/login");
-    }
+	if (open && status === "authenticated") {
+		onClose();
+		router.push("/dashboard");
+	}  
   }, [open, status, onClose, router]);
 
   if (!open) return null;
 
-  async function handleLogin(selectedProvider: "google" | "github") {
-    setProvider(selectedProvider);
-    await signIn(selectedProvider);
-  }
+	async function handleLogin(selectedProvider: "google" | "github") {
+	  setProvider(selectedProvider);
+
+	  const redirectTo = new URL("/auth/callback", window.location.origin);
+	  redirectTo.searchParams.set("next", "/dashboard");
+
+	  const { error } = await supabase.auth.signInWithOAuth({
+		provider: selectedProvider,
+		options: {
+		  redirectTo: redirectTo.toString(),
+		},
+	  });
+
+	  if (error) {
+		console.error(error);
+		setProvider(null);
+	  }
+	}
 
   return (
     <div

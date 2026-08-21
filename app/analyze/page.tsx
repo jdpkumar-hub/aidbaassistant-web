@@ -179,6 +179,7 @@ export default function AnalyzePage() {
       const res = await fetch("/api/analyze/awr", {
         method: "POST",
         body: formData,
+        credentials: "include",
       });
       const json = await res.json();
 
