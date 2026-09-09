@@ -4,7 +4,7 @@ import Link from "next/link";
 const tiers = [
   {
     name: "Free",
-    price: "$0",
+    price: "¥0",
     period: "forever",
     description: "Get started with essential AWR insights.",
     highlighted: false,
@@ -20,7 +20,7 @@ const tiers = [
   },
   {
     name: "Professional",
-    price: "$99",
+    price: "¥14,800",
     period: "per month",
     description: "For DBAs and consultants who analyze weekly.",
     highlighted: true,
