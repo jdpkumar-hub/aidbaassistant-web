@@ -43,7 +43,7 @@ export default async function CRMDashboard() {
 				<div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
 					<p className="text-sm text-slate-400">Revenue</p>
 					<h2 className="mt-2 text-3xl font-bold text-yellow-400">
-						$0
+						¥0
 					</h2>
 				</div>
 
