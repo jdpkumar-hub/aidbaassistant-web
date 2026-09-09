@@ -15,6 +15,7 @@ const publicLinks = [
   { href: "/#features", label: "Features" },
   { href: "/#demo", label: "Demo" },
   { href: "/#pricing", label: "Pricing" },
+  { href: "/fun", label: "Fun Zone" },
 ];
 
 export function Navbar() {
